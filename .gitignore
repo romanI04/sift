@@ -6,6 +6,7 @@ dist/
 build/
 .venv/
 *.db
+!demo/public/sift-index.db
 
 # Node
 node_modules/
