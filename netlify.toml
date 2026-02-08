@@ -1,6 +1,6 @@
 [build]
   base = "demo"
-  command = "npm run build"
+  command = "cd ../widget && npm install && npm run build && cd ../demo && npm run build"
   publish = "dist"
 
 [[headers]]

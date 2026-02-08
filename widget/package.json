@@ -1,0 +1,27 @@
+{
+  "name": "sift-search",
+  "version": "0.1.0",
+  "description": "Semantic search for static sites. Drop-in web component.",
+  "type": "module",
+  "main": "dist/sift-search.js",
+  "module": "dist/sift-search.js",
+  "exports": {
+    ".": "./dist/sift-search.js"
+  },
+  "files": ["dist"],
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "preview": "vite preview"
+  },
+  "dependencies": {
+    "sql.js-httpvfs": "^0.8.12"
+  },
+  "devDependencies": {
+    "@sveltejs/vite-plugin-svelte": "^5.0.0",
+    "svelte": "^5.0.0",
+    "vite": "^6.0.0"
+  },
+  "keywords": ["search", "semantic", "static-site", "web-component"],
+  "license": "MIT"
+}

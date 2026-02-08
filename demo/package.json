@@ -9,8 +9,7 @@
     "preview": "vite preview"
   },
   "dependencies": {
-    "sql.js-httpvfs": "^0.8.12",
-    "@huggingface/transformers": "^3.0.0"
+    "sift-search": "file:../widget"
   },
   "devDependencies": {
     "vite": "^6.0.0"
