@@ -1,0 +1,447 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Sift vs Keyword Search — FastAPI Docs</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+    <style>
+      * { box-sizing: border-box; margin: 0; padding: 0; }
+      body {
+        font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+        background: #fafaf8;
+        color: #1a1a1a;
+        min-height: 100vh;
+        -webkit-font-smoothing: antialiased;
+      }
+
+      /* Header */
+      .header {
+        max-width: 720px;
+        margin: 48px auto 0;
+        padding: 0 24px;
+        text-align: center;
+      }
+      .header h1 {
+        font-size: 1.75rem;
+        font-weight: 600;
+        letter-spacing: -0.03em;
+        color: #111;
+      }
+      .header p {
+        font-size: 0.88rem;
+        color: #888;
+        margin-top: 6px;
+        font-weight: 400;
+      }
+      .header p a {
+        color: #555;
+        text-decoration: underline;
+        text-underline-offset: 2px;
+      }
+
+      /* Search area */
+      .search-area {
+        max-width: 640px;
+        margin: 28px auto 0;
+        padding: 0 24px;
+      }
+      .search-input {
+        width: 100%;
+        padding: 15px 20px;
+        font-size: 0.95rem;
+        font-family: inherit;
+        border: 1.5px solid #e0ddd6;
+        border-radius: 12px;
+        outline: none;
+        background: #fff;
+        color: #1a1a1a;
+        transition: border-color 0.15s;
+      }
+      .search-input:focus { border-color: #111; }
+      .search-input::placeholder { color: #bbb; }
+      .search-meta {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        margin-top: 10px;
+      }
+      .chips {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 6px;
+      }
+      .chip {
+        background: transparent;
+        border: 1px solid #ddd9d0;
+        border-radius: 100px;
+        padding: 5px 14px;
+        font-size: 0.75rem;
+        font-family: inherit;
+        color: #777;
+        cursor: pointer;
+        transition: all 0.15s;
+      }
+      .chip:hover {
+        background: #111;
+        color: #fff;
+        border-color: #111;
+      }
+      .status {
+        font-size: 0.72rem;
+        color: #bbb;
+        white-space: nowrap;
+        margin-left: 12px;
+      }
+
+      /* Panels */
+      .panels {
+        max-width: 1040px;
+        margin: 32px auto 0;
+        padding: 0 24px;
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 16px;
+      }
+      .panel {
+        background: #fff;
+        border-radius: 16px;
+        border: 1px solid #eae8e3;
+        overflow: hidden;
+      }
+      .panel-head {
+        padding: 14px 20px;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        border-bottom: 1px solid #f2f0eb;
+      }
+      .panel-name {
+        font-weight: 600;
+        font-size: 0.82rem;
+        letter-spacing: -0.01em;
+      }
+      .panel-keyword .panel-name { color: #999; }
+      .panel-semantic .panel-name { color: #111; }
+      .tag {
+        font-size: 0.62rem;
+        font-weight: 500;
+        padding: 3px 10px;
+        border-radius: 100px;
+        letter-spacing: 0.03em;
+        text-transform: uppercase;
+      }
+      .tag-keyword { background: #f5f0ee; color: #b8574b; }
+      .tag-semantic { background: #ecf5ee; color: #2d8a42; }
+      .panel-body {
+        padding: 4px 20px 20px;
+        min-height: 200px;
+      }
+      .empty {
+        color: #d0ccc4;
+        font-size: 0.85rem;
+        text-align: center;
+        padding: 64px 20px;
+        font-weight: 400;
+      }
+
+      /* Results */
+      .result {
+        padding: 16px 0;
+        border-bottom: 1px solid #f5f3ef;
+      }
+      .result:last-child { border-bottom: none; }
+      .result-title {
+        font-weight: 500;
+        font-size: 0.88rem;
+        letter-spacing: -0.01em;
+      }
+      .panel-keyword .result-title { color: #777; }
+      .panel-semantic .result-title { color: #111; }
+      .result-url {
+        font-size: 0.7rem;
+        color: #c0bbb3;
+        margin-top: 3px;
+        font-weight: 400;
+      }
+      .result-snippet {
+        font-size: 0.8rem;
+        color: #888;
+        margin-top: 6px;
+        line-height: 1.55;
+        font-weight: 400;
+      }
+
+      /* Verdict */
+      .verdict {
+        max-width: 1040px;
+        margin: 16px auto 0;
+        padding: 0 24px;
+        display: none;
+      }
+      .verdict.show { display: block; }
+      .verdict-inner {
+        background: #111;
+        color: #fff;
+        padding: 13px 20px;
+        border-radius: 12px;
+        font-size: 0.82rem;
+        font-weight: 400;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        letter-spacing: -0.01em;
+      }
+      .verdict-dot {
+        width: 6px;
+        height: 6px;
+        border-radius: 50%;
+        background: #4ade80;
+        flex-shrink: 0;
+      }
+
+      /* Footer */
+      .footer {
+        max-width: 1040px;
+        margin: 32px auto 48px;
+        padding: 0 24px;
+        text-align: center;
+        font-size: 0.75rem;
+        color: #bbb;
+      }
+      .footer a {
+        color: #999;
+        text-decoration: none;
+        margin: 0 12px;
+        transition: color 0.15s;
+      }
+      .footer a:hover { color: #111; }
+
+      @media (max-width: 700px) {
+        .panels { grid-template-columns: 1fr; }
+        .header { margin-top: 32px; }
+        .header h1 { font-size: 1.35rem; }
+      }
+    </style>
+  </head>
+  <body>
+    <div class="header">
+      <h1>Sift vs Keyword Search</h1>
+      <p>Same query. Same docs. FastAPI — 146 pages, 2,123 chunks. <a href="https://github.com/romanI04/sift">GitHub</a></p>
+    </div>
+
+    <div class="search-area">
+      <input type="text" class="search-input" id="searchBox" placeholder="Search FastAPI docs..." disabled />
+      <div class="search-meta">
+        <div class="chips" id="suggestions">
+          <span class="chip" data-q="how to protect my API from unauthorized access">how to protect my API</span>
+          <span class="chip" data-q="handling file uploads from users">handling file uploads</span>
+          <span class="chip" data-q="running background jobs">running background jobs</span>
+          <span class="chip" data-q="how to test my endpoints">test my endpoints</span>
+          <span class="chip" data-q="database setup">database setup</span>
+        </div>
+        <span class="status" id="status">Loading...</span>
+      </div>
+    </div>
+
+    <div class="panels">
+      <div class="panel panel-keyword">
+        <div class="panel-head">
+          <span class="panel-name">Keyword Search</span>
+          <span class="tag tag-keyword">FTS5</span>
+        </div>
+        <div class="panel-body" id="keywordResults">
+          <div class="empty">Type a query or click a suggestion</div>
+        </div>
+      </div>
+      <div class="panel panel-semantic">
+        <div class="panel-head">
+          <span class="panel-name">Sift</span>
+          <span class="tag tag-semantic">Semantic</span>
+        </div>
+        <div class="panel-body" id="semanticResults">
+          <div class="empty">Type a query or click a suggestion</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="verdict" id="verdict">
+      <div class="verdict-inner">
+        <div class="verdict-dot"></div>
+        <span id="verdictText"></span>
+      </div>
+    </div>
+
+    <div class="footer">
+      <a href="https://pypi.org/project/sift-search/">pip install sift-search</a>
+      <a href="https://www.npmjs.com/package/sift-search">npm</a>
+      <a href="https://github.com/romanI04/sift">GitHub</a>
+    </div>
+
+    <script type="module">
+      import { createDbWorker } from "sql.js-httpvfs";
+
+      const SQLJS_CDN = "https://cdn.jsdelivr.net/npm/sql.js-httpvfs@0.8.12/dist";
+
+      const searchBox = document.getElementById("searchBox");
+      const statusEl = document.getElementById("status");
+      const keywordEl = document.getElementById("keywordResults");
+      const semanticEl = document.getElementById("semanticResults");
+      const verdictEl = document.getElementById("verdict");
+      const verdictText = document.getElementById("verdictText");
+
+      let dbWorker, embedWorker, allVectors, modelReady = false;
+      let debounceTimer;
+
+      async function blobUrl(url) {
+        const r = await fetch(url);
+        return URL.createObjectURL(new Blob([await r.text()], { type: "text/javascript" }));
+      }
+
+      function makeEmbedWorker() {
+        const code = `
+          let extractor = null;
+          let vecs = null;
+          self.onmessage = async (e) => {
+            if (e.data.type === "init") {
+              const { pipeline } = await import("https://cdn.jsdelivr.net/npm/@huggingface/transformers@3");
+              extractor = await pipeline("feature-extraction", "Xenova/all-MiniLM-L6-v2", { dtype: "q8" });
+              self.postMessage({ type: "ready" });
+            } else if (e.data.type === "cache") {
+              vecs = e.data.vectors.map(v => ({ id: v.chunkId, vec: new Float32Array(v.vector) }));
+              self.postMessage({ type: "cached" });
+            } else if (e.data.type === "search") {
+              const out = await extractor(e.data.query, { pooling: "mean", normalize: true });
+              const qv = out.tolist()[0];
+              const scores = vecs.map(v => {
+                let s = 0; for (let i = 0; i < qv.length; i++) s += qv[i] * v.vec[i];
+                return { chunkId: v.id, score: s };
+              });
+              scores.sort((a, b) => b.score - a.score);
+              self.postMessage({ type: "results", results: scores.slice(0, 5) });
+            }
+          };
+        `;
+        return new Worker(URL.createObjectURL(new Blob([code], { type: "text/javascript" })), { type: "module" });
+      }
+
+      function renderResults(container, items) {
+        if (!items.length) {
+          container.innerHTML = `<div class="empty">No results found</div>`;
+          return;
+        }
+        container.innerHTML = items.map((r, i) => `
+          <div class="result">
+            <div class="result-title">${esc(r.title)}</div>
+            <div class="result-url">${esc(r.url)}</div>
+            <div class="result-snippet">${esc(snippet(r.content))}</div>
+          </div>
+        `).join("");
+      }
+
+      function snippet(t, max = 140) { return t.length > max ? t.slice(0, max) + "..." : t; }
+      function esc(s) { const d = document.createElement("div"); d.textContent = s; return d.innerHTML; }
+
+      async function lexicalSearch(q) {
+        const words = q.split(/\s+/).filter(w => w.length > 1);
+        if (!words.length) return [];
+        const fts = words.map(w => `"${w}"`).join(" OR ");
+        const rows = await dbWorker.db.query(`SELECT rowid FROM chunks_fts WHERE chunks_fts MATCH ? LIMIT 5`, [fts]);
+        if (!rows.length) return [];
+        const ids = rows.map(r => r.rowid);
+        const ph = ids.map(() => "?").join(",");
+        return dbWorker.db.query(`SELECT id, url, title, content FROM chunks WHERE id IN (${ph})`, ids);
+      }
+
+      async function doSearch(q) {
+        try {
+          const kw = await lexicalSearch(q);
+          renderResults(keywordEl, kw);
+        } catch {
+          keywordEl.innerHTML = `<div class="empty">Search error</div>`;
+        }
+
+        if (modelReady) {
+          semanticEl.innerHTML = `<div class="empty">Computing...</div>`;
+          embedWorker.postMessage({ type: "search", query: q });
+        } else {
+          semanticEl.innerHTML = `<div class="empty">ML model loading...</div>`;
+        }
+      }
+
+      (async () => {
+        const workerUrl = await blobUrl(`${SQLJS_CDN}/sqlite.worker.js`);
+        const dbUrl = new URL("/sift-index.db", window.location.href).toString();
+
+        dbWorker = await createDbWorker(
+          [{ from: "inline", config: { serverMode: "full", url: dbUrl, requestChunkSize: 4096 } }],
+          workerUrl,
+          `${SQLJS_CDN}/sql-wasm.wasm`
+        );
+
+        statusEl.textContent = "Loading vectors...";
+        const vecRows = await dbWorker.db.query("SELECT chunk_id, vector FROM embeddings");
+        allVectors = vecRows.map(r => ({
+          chunkId: r.chunk_id,
+          vector: new Float32Array(r.vector.buffer ? r.vector.buffer : new Uint8Array(r.vector).buffer),
+        }));
+
+        embedWorker = makeEmbedWorker();
+        embedWorker.onmessage = async (e) => {
+          if (e.data.type === "ready") {
+            modelReady = true;
+            statusEl.textContent = "Ready";
+            if (searchBox.value.trim()) doSearch(searchBox.value.trim());
+          } else if (e.data.type === "results") {
+            const ids = e.data.results.map(r => r.chunkId);
+            if (!ids.length) { semanticEl.innerHTML = `<div class="empty">No results</div>`; return; }
+            const ph = ids.map(() => "?").join(",");
+            const chunks = await dbWorker.db.query(`SELECT id, url, title, content FROM chunks WHERE id IN (${ph})`, ids);
+            const scoreMap = new Map(e.data.results.map(r => [r.chunkId, r.score]));
+            const sorted = chunks.map(c => ({ ...c, score: scoreMap.get(c.id) || 0 })).sort((a, b) => b.score - a.score);
+            renderResults(semanticEl, sorted);
+
+            const kwTitles = [...keywordEl.querySelectorAll(".result-title")].map(el => el.textContent);
+            const semTitles = sorted.map(r => r.title);
+            if (semTitles.length && kwTitles.length && semTitles[0] !== kwTitles[0]) {
+              verdictText.textContent = `Sift found "${semTitles[0]}" — keyword search missed it.`;
+              verdictEl.classList.add("show");
+            } else {
+              verdictEl.classList.remove("show");
+            }
+          }
+        };
+
+        embedWorker.postMessage({ type: "cache", vectors: allVectors.map(v => ({ chunkId: v.chunkId, vector: Array.from(v.vector) })) });
+        embedWorker.postMessage({ type: "init" });
+
+        statusEl.textContent = "Loading ML model...";
+        searchBox.disabled = false;
+        searchBox.focus();
+
+        searchBox.addEventListener("input", () => {
+          clearTimeout(debounceTimer);
+          debounceTimer = setTimeout(() => {
+            const q = searchBox.value.trim();
+            if (q.length > 1) doSearch(q);
+            else {
+              keywordEl.innerHTML = `<div class="empty">Type a query or click a suggestion</div>`;
+              semanticEl.innerHTML = `<div class="empty">Type a query or click a suggestion</div>`;
+              verdictEl.classList.remove("show");
+            }
+          }, 250);
+        });
+
+        document.getElementById("suggestions").addEventListener("click", (e) => {
+          const chip = e.target.closest(".chip");
+          if (chip && chip.dataset.q) {
+            searchBox.value = chip.dataset.q;
+            doSearch(chip.dataset.q);
+          }
+        });
+      })();
+    </script>
+  </body>
+</html>

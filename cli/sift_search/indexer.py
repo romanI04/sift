@@ -1,5 +1,6 @@
 """Build sift-index.db from a directory of markdown files."""
 
+import os
 import sqlite3
 import struct
 
@@ -31,6 +32,7 @@ def build_index(content_dir, output_path="sift-index.db"):
     vectors = embedder.embed(texts)
 
     print(f"Writing index to {output_path}...")
+    os.makedirs(os.path.dirname(output_path) or ".", exist_ok=True)
     conn = sqlite3.connect(output_path)
     cur = conn.cursor()
 

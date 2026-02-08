@@ -25,3 +25,7 @@ Thumbs.db
 # Environment
 .env
 .env.local
+
+# Internal docs (not for public repo)
+CLAUDE.md
+SPEC.md
