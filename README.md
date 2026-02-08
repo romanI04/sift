@@ -1,5 +1,6 @@
 # sift
 
+[![CI](https://github.com/romanI04/sift/actions/workflows/ci.yml/badge.svg)](https://github.com/romanI04/sift/actions)
 [![PyPI](https://img.shields.io/pypi/v/sift-search.svg)](https://pypi.org/project/sift-search/)
 [![npm](https://img.shields.io/npm/v/sift-search.svg)](https://www.npmjs.com/package/sift-search)
 [![license](https://img.shields.io/github/license/romanI04/sift.svg)](https://github.com/romanI04/sift)
