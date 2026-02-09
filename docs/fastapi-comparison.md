@@ -21,7 +21,7 @@ Keyword search needs exact word matches. Sift understands that these mean the sa
 
 ## Try it yourself
 
-**[Interactive side-by-side comparison →](https://astonishing-creponne-e1d3d8.netlify.app/compare.html)**
+**[Interactive side-by-side comparison →](https://siftsearch.netlify.app/compare.html)**
 
 ```bash
 pip install sift-search

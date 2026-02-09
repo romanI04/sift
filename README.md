@@ -7,7 +7,7 @@
 
 Semantic search for static sites. Two commands to install, zero servers to run.
 
-![sift vs keyword search](https://astonishing-creponne-e1d3d8.netlify.app/sift-comparison.png)
+![sift vs keyword search](https://siftsearch.netlify.app/sift-comparison.png)
 
 ## Usage
 
@@ -41,7 +41,7 @@ Keyword search needs exact matches. Users don't think in exact matches.
 
 Search "how to protect my API" on FastAPI's docs — keyword search returns the Alternatives page. Sift returns Security First Steps, OAuth2, and JWT.
 
-**[See it yourself](https://astonishing-creponne-e1d3d8.netlify.app/compare.html)** — side-by-side on FastAPI's full docs (146 pages, 2,123 chunks).
+**[See it yourself](https://siftsearch.netlify.app/compare.html)** — side-by-side on FastAPI's full docs (146 pages, 2,123 chunks).
 
 ## Details
 
