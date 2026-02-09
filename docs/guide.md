@@ -41,7 +41,7 @@ That's it. Your visitors now have semantic search.
 ## How it works
 
 - **Build time:** The CLI reads your markdown, splits it into chunks, and computes embeddings using all-MiniLM-L6-v2 (a small, fast language model). Everything is stored in a SQLite database.
-- **Runtime:** The browser loads the database via HTTP range requests (no full download needed). Keyword search works instantly via FTS5. Once the ML model loads in the visitor's browser, results upgrade to semantic.
+- **Runtime:** The browser loads the database via HTTP range requests when available, or downloads the full index as fallback. Keyword search works instantly via FTS5. Once the ML model loads in the visitor's browser, results upgrade to semantic.
 - **No server:** The index is a static file. The model runs client-side. Works on Netlify, Vercel, GitHub Pages, Cloudflare Pages, or any static host.
 
 ## Requirements
@@ -52,7 +52,7 @@ That's it. Your visitors now have semantic search.
   - `Content-Encoding: identity`
   - `Accept-Ranges: bytes`
 - **Browsers:** Chrome, Edge, Firefox (latest), Safari 16+.
-- **COOP/COEP:** The ML model uses WebAssembly threads, which require these headers on your page:
+- **COOP/COEP (optional):** These headers enable HTTP range requests (partial index download). Without them, sift downloads the full index file instead — still works, just a larger initial load.
   - `Cross-Origin-Opener-Policy: same-origin`
   - `Cross-Origin-Embedder-Policy: credentialless`
 

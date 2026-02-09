@@ -33,6 +33,8 @@ def build_index(content_dir, output_path="sift-index.db"):
 
     print(f"Writing index to {output_path}...")
     os.makedirs(os.path.dirname(output_path) or ".", exist_ok=True)
+    if os.path.exists(output_path):
+        os.remove(output_path)
     conn = sqlite3.connect(output_path)
     cur = conn.cursor()
 

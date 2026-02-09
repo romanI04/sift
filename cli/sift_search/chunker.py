@@ -14,7 +14,7 @@ def chunk_file(filepath, base_dir):
 
     rel_path = os.path.relpath(filepath, base_dir)
     # Convert file path to URL-like path (strip .md extension)
-    url = rel_path.replace(os.sep, "/")
+    url = "/" + rel_path.replace(os.sep, "/")
     if url.endswith(".md"):
         url = url[:-3]
 

@@ -31,7 +31,7 @@ Visitors get semantic search. No backend. No API keys. No monthly bill.
 
 **Build time:** `sift index` reads your markdown, splits into chunks, and computes embeddings with [all-MiniLM-L6-v2](https://huggingface.co/sentence-transformers/all-MiniLM-L6-v2) (ONNX). Output is a single SQLite file.
 
-**Runtime:** The browser loads the SQLite file via [HTTP range requests](https://github.com/phiresky/sql.js-httpvfs) — no full download needed. Keyword results appear instantly via FTS5. Once the ML model loads client-side (~2s), results upgrade to semantic.
+**Runtime:** The browser loads the SQLite file via [HTTP range requests](https://github.com/phiresky/sql.js-httpvfs) when available, or downloads the full index as fallback. Keyword results appear instantly via FTS5. Once the ML model loads client-side (~2s), results upgrade to semantic.
 
 **No server.** The index is a static file. The model runs in the browser via [Transformers.js](https://huggingface.co/docs/transformers.js). Deploy on Netlify, Vercel, GitHub Pages, Cloudflare Pages, or any static host.
 
@@ -47,7 +47,7 @@ Search "how to protect my API" on FastAPI's docs — keyword search returns the 
 
 `sift doctor` validates your index (14 checks). Dark mode with `<sift-search theme="dark">`. 92KB JS bundle (gzip 27KB), plus on-demand WASM and model loading. Supports Chrome, Edge, Firefox (latest), Safari 16+.
 
-Your static host must serve `.db` files without compression (breaks range requests). See the [installation guide](docs/guide.md) for header config.
+Works best with COOP/COEP headers (enables range requests for partial index download). Without them, sift falls back to downloading the full index — still works, just a larger initial load. See the [installation guide](docs/guide.md) for header config.
 
 ## Credits
 

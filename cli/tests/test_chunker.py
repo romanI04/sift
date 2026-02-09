@@ -47,6 +47,7 @@ def test_url_generation():
 
     assert len(chunks) >= 1
     assert not chunks[0]["url"].endswith(".md")
+    assert chunks[0]["url"].startswith("/")
 
 
 def test_chunk_directory():

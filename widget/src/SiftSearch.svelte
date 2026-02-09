@@ -14,6 +14,7 @@
   let ready = $state(false);
 
   const SQLJS_CDN = "https://cdn.jsdelivr.net/npm/sql.js-httpvfs@0.8.12/dist";
+  const SQLJS_FALLBACK = "https://cdn.jsdelivr.net/npm/sql.js@1.12.0/dist";
 
   let dbWorker = null;
   let embedWorker = null;
@@ -26,6 +27,33 @@
     const code = await resp.text();
     const blob = new Blob([code], { type: "text/javascript" });
     return URL.createObjectURL(blob);
+  }
+
+  // Load sql.js (fallback when SharedArrayBuffer unavailable)
+  async function loadSqlJs() {
+    if (window.initSqlJs) return window.initSqlJs;
+    return new Promise((resolve, reject) => {
+      const s = document.createElement("script");
+      s.src = `${SQLJS_FALLBACK}/sql-wasm.js`;
+      s.onload = () => resolve(window.initSqlJs);
+      s.onerror = () => reject(new Error("Failed to load sql.js"));
+      document.head.appendChild(s);
+    });
+  }
+
+  function wrapSqlJsDb(sqlDb) {
+    return {
+      db: {
+        query: (sql, params = []) => {
+          const stmt = sqlDb.prepare(sql);
+          if (params && params.length) stmt.bind(params);
+          const rows = [];
+          while (stmt.step()) rows.push(stmt.getAsObject());
+          stmt.free();
+          return rows;
+        }
+      }
+    };
   }
 
   function createEmbedWorker() {
@@ -85,17 +113,25 @@
 
   onMount(async () => {
     try {
-      statusText = "Loading search index...";
-      const sqljsWorkerUrl = await blobUrlFromCDN(`${SQLJS_CDN}/sqlite.worker.js`);
-
-      // Resolve db path to absolute URL — blob URL workers can't resolve relative paths
       const dbUrl = new URL(db, window.location.href).toString();
 
-      dbWorker = await createDbWorker(
-        [{ from: "inline", config: { serverMode: "full", url: dbUrl, requestChunkSize: 4096 } }],
-        sqljsWorkerUrl,
-        `${SQLJS_CDN}/sql-wasm.wasm`
-      );
+      if (typeof SharedArrayBuffer !== "undefined") {
+        statusText = "Loading search index...";
+        const sqljsWorkerUrl = await blobUrlFromCDN(`${SQLJS_CDN}/sqlite.worker.js`);
+        dbWorker = await createDbWorker(
+          [{ from: "inline", config: { serverMode: "full", url: dbUrl, requestChunkSize: 4096 } }],
+          sqljsWorkerUrl,
+          `${SQLJS_CDN}/sql-wasm.wasm`
+        );
+      } else {
+        statusText = "Downloading search index...";
+        const [initSqlJs, dbBuf] = await Promise.all([
+          loadSqlJs(),
+          fetch(dbUrl).then((r) => r.arrayBuffer()),
+        ]);
+        const SQL = await initSqlJs({ locateFile: (f) => `${SQLJS_FALLBACK}/${f}` });
+        dbWorker = wrapSqlJsDb(new SQL.Database(new Uint8Array(dbBuf)));
+      }
 
       statusText = "Loading vectors...";
       const vecRows = await dbWorker.db.query("SELECT chunk_id, vector FROM embeddings");
@@ -220,14 +256,16 @@
     <ul class="sift-results">
       {#each results as r}
         <li class="sift-result">
-          <div class="sift-result-title">
-            {r.title}
-            <span class="sift-tag" class:sift-tag-semantic={r.tag === "semantic"} class:sift-tag-keyword={r.tag === "keyword"}>
-              {r.tag}
-            </span>
-          </div>
-          <div class="sift-result-url">{r.url}</div>
-          <div class="sift-result-snippet">{snippet(r.content)}</div>
+          <a href={r.url} class="sift-result-link">
+            <div class="sift-result-title">
+              {r.title}
+              <span class="sift-tag" class:sift-tag-semantic={r.tag === "semantic"} class:sift-tag-keyword={r.tag === "keyword"}>
+                {r.tag}
+              </span>
+            </div>
+            <div class="sift-result-url">{r.url}</div>
+            <div class="sift-result-snippet">{snippet(r.content)}</div>
+          </a>
           {#if r.score !== undefined}
             <div class="sift-result-score">{r.score.toFixed(4)}</div>
           {/if}
@@ -274,9 +312,20 @@
     list-style: none;
     padding: 0;
   }
+  .sift-result-link {
+    display: block;
+    text-decoration: none;
+    color: inherit;
+  }
   .sift-result {
     padding: 12px 0;
     border-bottom: 1px solid #eee;
+  }
+  .sift-result:hover {
+    background: #f8f8f8;
+  }
+  .sift[data-theme="dark"] .sift-result:hover {
+    background: #222;
   }
   .sift[data-theme="dark"] .sift-result {
     border-bottom-color: #333;

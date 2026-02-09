@@ -153,6 +153,7 @@
         border-bottom: 1px solid #f5f3ef;
       }
       .result:last-child { border-bottom: none; }
+      .result:hover { background: #faf9f6; }
       .result-title {
         font-weight: 500;
         font-size: 0.88rem;
@@ -284,6 +285,7 @@
       import { createDbWorker } from "sql.js-httpvfs";
 
       const SQLJS_CDN = "https://cdn.jsdelivr.net/npm/sql.js-httpvfs@0.8.12/dist";
+      const SQLJS_FALLBACK = "https://cdn.jsdelivr.net/npm/sql.js@1.12.0/dist";
 
       const searchBox = document.getElementById("searchBox");
       const statusEl = document.getElementById("status");
@@ -298,6 +300,32 @@
       async function blobUrl(url) {
         const r = await fetch(url);
         return URL.createObjectURL(new Blob([await r.text()], { type: "text/javascript" }));
+      }
+
+      async function loadSqlJs() {
+        if (window.initSqlJs) return window.initSqlJs;
+        return new Promise((resolve, reject) => {
+          const s = document.createElement("script");
+          s.src = `${SQLJS_FALLBACK}/sql-wasm.js`;
+          s.onload = () => resolve(window.initSqlJs);
+          s.onerror = () => reject(new Error("Failed to load sql.js"));
+          document.head.appendChild(s);
+        });
+      }
+
+      function wrapSqlJsDb(sqlDb) {
+        return {
+          db: {
+            query: (sql, params = []) => {
+              const stmt = sqlDb.prepare(sql);
+              if (params && params.length) stmt.bind(params);
+              const rows = [];
+              while (stmt.step()) rows.push(stmt.getAsObject());
+              stmt.free();
+              return rows;
+            }
+          }
+        };
       }
 
       function makeEmbedWorker() {
@@ -333,11 +361,11 @@
           return;
         }
         container.innerHTML = items.map((r, i) => `
-          <div class="result">
+          <a href="${esc(r.url)}" class="result" style="display:block;text-decoration:none;color:inherit;">
             <div class="result-title">${esc(r.title)}</div>
             <div class="result-url">${esc(r.url)}</div>
             <div class="result-snippet">${esc(snippet(r.content))}</div>
-          </div>
+          </a>
         `).join("");
       }
 
@@ -372,14 +400,25 @@
       }
 
       (async () => {
-        const workerUrl = await blobUrl(`${SQLJS_CDN}/sqlite.worker.js`);
         const dbUrl = new URL("/sift-index.db", window.location.href).toString();
 
-        dbWorker = await createDbWorker(
-          [{ from: "inline", config: { serverMode: "full", url: dbUrl, requestChunkSize: 4096 } }],
-          workerUrl,
-          `${SQLJS_CDN}/sql-wasm.wasm`
-        );
+        if (typeof SharedArrayBuffer !== "undefined") {
+          statusEl.textContent = "Loading index...";
+          const workerUrl = await blobUrl(`${SQLJS_CDN}/sqlite.worker.js`);
+          dbWorker = await createDbWorker(
+            [{ from: "inline", config: { serverMode: "full", url: dbUrl, requestChunkSize: 4096 } }],
+            workerUrl,
+            `${SQLJS_CDN}/sql-wasm.wasm`
+          );
+        } else {
+          statusEl.textContent = "Downloading index...";
+          const [initSqlJs, dbBuf] = await Promise.all([
+            loadSqlJs(),
+            fetch(dbUrl).then(r => r.arrayBuffer())
+          ]);
+          const SQL = await initSqlJs({ locateFile: f => `${SQLJS_FALLBACK}/${f}` });
+          dbWorker = wrapSqlJsDb(new SQL.Database(new Uint8Array(dbBuf)));
+        }
 
         statusEl.textContent = "Loading vectors...";
         const vecRows = await dbWorker.db.query("SELECT chunk_id, vector FROM embeddings");
