@@ -4,7 +4,7 @@
   import { onMount, onDestroy } from "svelte";
   import { createDbWorker } from "sql.js-httpvfs";
 
-  let { db = "/sift-index.db", theme = "light" } = $props();
+  let { db = "/sift-index.db", theme = "light", api = "" } = $props();
 
   let query = $state("");
   let statusText = $state("Loading...");
@@ -15,47 +15,41 @@
 
   const SQLJS_CDN = "https://cdn.jsdelivr.net/npm/sql.js-httpvfs@0.8.12/dist";
   const SQLJS_FALLBACK = "https://cdn.jsdelivr.net/npm/sql.js@1.12.0/dist";
+  const LOCAL_MODEL = "Xenova/bge-small-en-v1.5";
 
   let dbWorker = null;
   let embedWorker = null;
   let allVectors = null;
   let debounceTimer = null;
 
-  // Fetch a script from CDN and return a same-origin blob URL
-  async function blobUrlFromCDN(url) {
-    const resp = await fetch(url);
-    const code = await resp.text();
-    const blob = new Blob([code], { type: "text/javascript" });
-    return URL.createObjectURL(blob);
-  }
-
-  // Load sql.js (fallback when SharedArrayBuffer unavailable)
-  async function loadSqlJs() {
-    if (window.initSqlJs) return window.initSqlJs;
-    return new Promise((resolve, reject) => {
-      const s = document.createElement("script");
-      s.src = `${SQLJS_FALLBACK}/sql-wasm.js`;
-      s.onload = () => resolve(window.initSqlJs);
-      s.onerror = () => reject(new Error("Failed to load sql.js"));
-      document.head.appendChild(s);
+  // ---- Cloud mode: fetch embedding from API ----
+  async function cloudEmbed(text) {
+    const resp = await fetch(api, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ query: text }),
     });
+    if (!resp.ok) throw new Error(`API error: ${resp.status}`);
+    const data = await resp.json();
+    return new Float32Array(data.vector);
   }
 
-  function wrapSqlJsDb(sqlDb) {
-    return {
-      db: {
-        query: (sql, params = []) => {
-          const stmt = sqlDb.prepare(sql);
-          if (params && params.length) stmt.bind(params);
-          const rows = [];
-          while (stmt.step()) rows.push(stmt.getAsObject());
-          stmt.free();
-          return rows;
-        }
-      }
-    };
+  function dotProduct(a, b) {
+    let sum = 0;
+    for (let i = 0; i < a.length; i++) sum += a[i] * b[i];
+    return sum;
   }
 
+  function semanticSearchLocal(queryVec, limit = 10) {
+    const scores = allVectors.map((item) => ({
+      chunkId: item.chunkId,
+      score: dotProduct(queryVec, item.vector),
+    }));
+    scores.sort((a, b) => b.score - a.score);
+    return scores.slice(0, limit);
+  }
+
+  // ---- Local mode: WebWorker with Transformers.js ----
   function createEmbedWorker() {
     const code = `
       let extractor = null;
@@ -67,7 +61,7 @@
         if (type === "init") {
           try {
             const { pipeline } = await import("https://cdn.jsdelivr.net/npm/@huggingface/transformers@3");
-            extractor = await pipeline("feature-extraction", e.data.model || "Xenova/all-MiniLM-L6-v2", { dtype: "q8" });
+            extractor = await pipeline("feature-extraction", e.data.model, { dtype: "q8" });
             self.postMessage({ type: "ready" });
           } catch (err) {
             self.postMessage({ type: "error", error: err.message });
@@ -111,10 +105,47 @@
     return new Worker(URL.createObjectURL(blob), { type: "module" });
   }
 
+  // ---- Shared: SQLite loading ----
+  async function blobUrlFromCDN(url) {
+    const resp = await fetch(url);
+    const code = await resp.text();
+    const blob = new Blob([code], { type: "text/javascript" });
+    return URL.createObjectURL(blob);
+  }
+
+  async function loadSqlJs() {
+    if (window.initSqlJs) return window.initSqlJs;
+    return new Promise((resolve, reject) => {
+      const s = document.createElement("script");
+      s.src = `${SQLJS_FALLBACK}/sql-wasm.js`;
+      s.onload = () => resolve(window.initSqlJs);
+      s.onerror = () => reject(new Error("Failed to load sql.js"));
+      document.head.appendChild(s);
+    });
+  }
+
+  function wrapSqlJsDb(sqlDb) {
+    return {
+      db: {
+        query: (sql, params = []) => {
+          const stmt = sqlDb.prepare(sql);
+          if (params && params.length) stmt.bind(params);
+          const rows = [];
+          while (stmt.step()) rows.push(stmt.getAsObject());
+          stmt.free();
+          return rows;
+        }
+      }
+    };
+  }
+
+  // ---- Init ----
   onMount(async () => {
     try {
       const dbUrl = new URL(db, window.location.href).toString();
+      const isCloudMode = !!api;
 
+      // Load SQLite index
       if (typeof SharedArrayBuffer !== "undefined") {
         statusText = "Loading search index...";
         const sqljsWorkerUrl = await blobUrlFromCDN(`${SQLJS_CDN}/sqlite.worker.js`);
@@ -133,6 +164,7 @@
         dbWorker = wrapSqlJsDb(new SQL.Database(new Uint8Array(dbBuf)));
       }
 
+      // Load vectors for similarity computation
       statusText = "Loading vectors...";
       const vecRows = await dbWorker.db.query("SELECT chunk_id, vector FROM embeddings");
       allVectors = vecRows.map((row) => ({
@@ -142,17 +174,25 @@
         ),
       }));
 
-      embedWorker = createEmbedWorker();
-      embedWorker.onmessage = onWorkerMessage;
+      if (isCloudMode) {
+        // Cloud mode: embedding API is always ready, no model to load
+        modelReady = true;
+        statusText = "Ready.";
+      } else {
+        // Local mode: spin up WebWorker with ML model
+        embedWorker = createEmbedWorker();
+        embedWorker.onmessage = onWorkerMessage;
 
-      const vectorsForWorker = allVectors.map((v) => ({
-        chunkId: v.chunkId,
-        vector: Array.from(v.vector),
-      }));
-      embedWorker.postMessage({ type: "cache-vectors", vectors: vectorsForWorker });
-      embedWorker.postMessage({ type: "init" });
+        const vectorsForWorker = allVectors.map((v) => ({
+          chunkId: v.chunkId,
+          vector: Array.from(v.vector),
+        }));
+        embedWorker.postMessage({ type: "cache-vectors", vectors: vectorsForWorker });
+        embedWorker.postMessage({ type: "init", model: LOCAL_MODEL });
 
-      statusText = "Ready for keyword search. Loading ML model...";
+        statusText = "Ready for keyword search. Loading ML model...";
+      }
+
       ready = true;
     } catch (err) {
       statusText = `Error: ${err.message}`;
@@ -190,6 +230,7 @@
   }
 
   async function doSearch(q) {
+    // FTS5 keyword search (instant, always fires first)
     try {
       const lexResults = await lexicalSearch(q);
       results = lexResults.map((r) => ({ ...r, tag: "keyword" }));
@@ -198,7 +239,21 @@
       // FTS error — ignore
     }
 
-    if (modelReady) {
+    if (!modelReady) return;
+
+    if (api) {
+      // Cloud mode: fetch embedding, compute similarity in main thread
+      try {
+        statusText = "Searching...";
+        const queryVec = await cloudEmbed(q);
+        const ranked = semanticSearchLocal(queryVec, 10);
+        await showSemanticResults(ranked);
+        statusText = "Ready.";
+      } catch (err) {
+        statusText = `Search error: ${err.message}`;
+      }
+    } else {
+      // Local mode: delegate to WebWorker
       statusText = "Computing semantic search...";
       embedWorker.postMessage({ type: "search", query: q, limit: 10 });
     }
@@ -234,7 +289,6 @@
       .map((c) => ({ ...c, score: scoreMap.get(c.id) || 0, tag: "semantic" }))
       .sort((a, b) => b.score - a.score);
     resultTag = "semantic";
-    statusText = "Semantic search ready.";
   }
 
   function snippet(text, max = 200) {

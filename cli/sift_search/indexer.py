@@ -13,11 +13,11 @@ def vector_to_blob(vec):
     return struct.pack(f"{len(vec)}f", *vec)
 
 
-def build_index(content_dir, output_path="sift-index.db"):
+def build_index(content_dir, output_path="sift-index.db", provider="local"):
     """Build the SQLite index from markdown content.
 
     1. Chunk all .md files in content_dir
-    2. Compute embeddings via ONNX
+    2. Compute embeddings (local ONNX or OpenAI API)
     3. Write SQLite with chunks, FTS5, and embeddings
     """
     print(f"Scanning {content_dir} for markdown files...")
@@ -26,8 +26,8 @@ def build_index(content_dir, output_path="sift-index.db"):
         print("No chunks found. Check that the directory contains .md files.")
         return
 
-    print(f"Found {len(chunks)} chunks. Computing embeddings...")
-    embedder = Embedder()
+    print(f"Found {len(chunks)} chunks. Computing embeddings ({provider})...")
+    embedder = Embedder(provider=provider)
     texts = [c["content"] for c in chunks]
     vectors = embedder.embed(texts)
 

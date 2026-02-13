@@ -19,6 +19,12 @@ def main():
     idx.add_argument(
         "-o", "--output", default="sift-index.db", help="Output database path"
     )
+    idx.add_argument(
+        "--provider",
+        choices=["local", "openai"],
+        default="local",
+        help="Embedding provider: local (ONNX, free) or openai (API, requires OPENAI_API_KEY)",
+    )
 
     doc = sub.add_parser("doctor", help="Validate sift setup and index file")
     doc.add_argument(
@@ -28,7 +34,7 @@ def main():
     args = parser.parse_args()
 
     if args.command == "index":
-        build_index(args.directory, args.output)
+        build_index(args.directory, args.output, provider=args.provider)
     elif args.command == "doctor":
         run_doctor(args.index)
     else:

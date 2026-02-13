@@ -65,12 +65,16 @@ def run_doctor(index_path):
         f"{emb_count} embeddings, {chunk_count} chunks",
     )
 
-    # 6. Embedding dimensions = 384
+    # 6. Embedding dimensions
+    meta = dict(cur.execute("SELECT key, value FROM sift_metadata").fetchall())
+    expected_dim = int(meta.get("embedding_dim", "384"))
     blob = cur.execute("SELECT vector FROM embeddings LIMIT 1").fetchone()
     if blob:
         blob = blob[0]
         dim = len(blob) // 4
-        all_pass &= check("Embedding dimensions", dim == 384, f"{dim}-dim")
+        all_pass &= check(
+            "Embedding dimensions", dim == expected_dim, f"{dim}-dim (expected {expected_dim})"
+        )
 
         # 7. Vectors are L2-normalized
         vec = struct.unpack(f"{dim}f", blob)
@@ -82,12 +86,14 @@ def run_doctor(index_path):
         all_pass &= check("Embedding data", False, "no embeddings found")
 
     # 8. Model metadata
-    meta = dict(cur.execute("SELECT key, value FROM sift_metadata").fetchall())
     all_pass &= check("Model metadata", "model" in meta, meta.get("model", "missing"))
+    known_models = ["bge-small", "text-embedding-3", "MiniLM"]
+    model_name = meta.get("model", "")
+    model_known = any(m in model_name for m in known_models)
     all_pass &= check(
-        "Model is MiniLM",
-        "MiniLM" in meta.get("model", ""),
-        meta.get("model", "unknown"),
+        "Recognized model",
+        model_known,
+        model_name or "unknown",
     )
 
     # 9. FTS5 works
