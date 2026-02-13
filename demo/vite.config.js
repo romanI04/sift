@@ -9,6 +9,7 @@ export default defineConfig({
       input: {
         main: resolve(__dirname, "index.html"),
         compare: resolve(__dirname, "compare.html"),
+        acx: resolve(__dirname, "acx.html"),
       },
     },
   },
