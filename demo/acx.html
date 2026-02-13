@@ -7,6 +7,12 @@
     <meta name="description" content="Semantic search across 1,000+ Astral Codex Ten posts. Find that ACX essay you're thinking of — by concept, not just keywords." />
     <meta property="og:title" content="Search 1,000+ Astral Codex Ten posts by meaning" />
     <meta property="og:description" content="Substack search matches titles. This searches by concept. Try it." />
+    <meta property="og:image" content="https://sift-search.pages.dev/og-acx.png" />
+    <meta property="og:type" content="website" />
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content="Search 1,000+ Astral Codex Ten posts by meaning" />
+    <meta name="twitter:description" content="Substack search matches titles. This searches by concept. Try it." />
+    <meta name="twitter:image" content="https://sift-search.pages.dev/og-acx.png" />
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
@@ -344,15 +350,15 @@
         <div class="col-body">
           <div class="hit">
             <div class="hit-title">All Medications Are Insignificant In The Eyes Of God And...</div>
-            <div class="hit-snippet">Title contains "medications" — but the post is about something else entirely.</div>
+            <div class="hit-snippet">My claim isn't that the concept of statistical significance is meaningless. It's that its particular...</div>
           </div>
           <div class="hit">
             <div class="hit-title">Drug Users Use A Lot Of Drugs</div>
-            <div class="hit-snippet">Matched "drugs" — not remotely what you were looking for.</div>
+            <div class="hit-snippet">Someone on the subreddit posted a discussion of this graph, showing the distribution of alcohol...</div>
           </div>
           <div class="hit">
             <div class="hit-title">The Government Is Making Telemedicine Hard And Inconvenient</div>
-            <div class="hit-snippet">Matched "medicine" — about regulation, not effectiveness.</div>
+            <div class="hit-snippet">In most states, it's illegal to prescribe controlled substances via telemedicine unless you've had...</div>
           </div>
         </div>
       </div>
@@ -420,7 +426,7 @@
     </div>
 
     <div class="footer">
-      Powered by <a href="https://siftsearch.netlify.app">Sift</a> <span class="sep">/</span>
+      Powered by <a href="/">Sift</a> <span class="sep">/</span>
       <a href="https://github.com/romanI04/sift">GitHub</a> <span class="sep">/</span>
       All search runs in your browser. No data leaves your device.
     </div>
@@ -579,7 +585,7 @@
         setProgress(0, "Downloading 1,078 posts...");
         const [initSqlJs, dbBuf] = await Promise.all([
           loadSqlJs(),
-          fetchWithProgress("/acx-index.db")
+          fetchWithProgress("https://pub-c64719780b704b30b392261860a60113.r2.dev/acx-index.db")
         ]);
 
         setProgress(62, "Parsing index...");

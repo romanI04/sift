@@ -1,0 +1,8 @@
+/*
+  Cross-Origin-Opener-Policy: same-origin
+  Cross-Origin-Embedder-Policy: credentialless
+
+/*.db
+  Accept-Ranges: bytes
+  Cache-Control: public, max-age=3600, no-transform
+  Content-Type: application/octet-stream
