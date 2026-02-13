@@ -3,24 +3,360 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Sift — Semantic Search Demo</title>
+    <title>Sift — Semantic Search for Static Sites</title>
+    <meta name="description" content="Add meaning-based search to any static site. No server, no API keys, no monthly bill. Try it live on FastAPI's docs." />
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <style>
       * { box-sizing: border-box; margin: 0; padding: 0; }
       body {
-        font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
-        max-width: 640px;
-        margin: 40px auto;
-        padding: 0 20px;
+        font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+        background: #fafaf8;
         color: #1a1a1a;
+        -webkit-font-smoothing: antialiased;
       }
-      h1 { font-size: 1.5rem; margin-bottom: 4px; }
-      .subtitle { color: #666; font-size: 0.9rem; margin-bottom: 24px; }
+
+      /* Hero */
+      .hero {
+        max-width: 720px;
+        margin: 0 auto;
+        padding: 64px 24px 0;
+        text-align: center;
+      }
+      .hero-badge {
+        display: inline-block;
+        font-size: 0.72rem;
+        font-weight: 500;
+        color: #2d8a42;
+        background: #ecf5ee;
+        padding: 4px 14px;
+        border-radius: 100px;
+        letter-spacing: 0.02em;
+        margin-bottom: 20px;
+      }
+      .hero h1 {
+        font-size: 2.8rem;
+        font-weight: 700;
+        letter-spacing: -0.04em;
+        line-height: 1.1;
+        color: #111;
+      }
+      .hero p {
+        font-size: 1.05rem;
+        color: #666;
+        margin-top: 16px;
+        line-height: 1.6;
+        max-width: 520px;
+        margin-left: auto;
+        margin-right: auto;
+      }
+      .hero-links {
+        margin-top: 24px;
+        display: flex;
+        gap: 12px;
+        justify-content: center;
+        flex-wrap: wrap;
+      }
+      .hero-links a {
+        display: inline-block;
+        font-size: 0.85rem;
+        font-weight: 500;
+        text-decoration: none;
+        padding: 10px 24px;
+        border-radius: 8px;
+        transition: all 0.15s;
+      }
+      .btn-primary {
+        background: #111;
+        color: #fff;
+      }
+      .btn-primary:hover { background: #333; }
+      .btn-secondary {
+        background: transparent;
+        color: #555;
+        border: 1.5px solid #ddd9d0;
+      }
+      .btn-secondary:hover {
+        border-color: #111;
+        color: #111;
+      }
+
+      /* Try it */
+      .try-section {
+        max-width: 680px;
+        margin: 48px auto 0;
+        padding: 0 24px;
+      }
+      .try-label {
+        font-size: 0.72rem;
+        font-weight: 500;
+        text-transform: uppercase;
+        letter-spacing: 0.08em;
+        color: #bbb;
+        margin-bottom: 12px;
+        text-align: center;
+      }
+      .try-context {
+        text-align: center;
+        font-size: 0.82rem;
+        color: #999;
+        margin-bottom: 16px;
+      }
+      .suggestions {
+        display: flex;
+        gap: 8px;
+        justify-content: center;
+        flex-wrap: wrap;
+        margin-bottom: 20px;
+      }
+      .suggestion {
+        background: transparent;
+        border: 1px solid #e0ddd6;
+        border-radius: 100px;
+        padding: 6px 16px;
+        font-size: 0.78rem;
+        font-family: inherit;
+        color: #777;
+        cursor: pointer;
+        transition: all 0.15s;
+      }
+      .suggestion:hover {
+        background: #111;
+        color: #fff;
+        border-color: #111;
+      }
+
+      /* How it works */
+      .how-section {
+        max-width: 800px;
+        margin: 64px auto 0;
+        padding: 0 24px;
+      }
+      .section-title {
+        font-size: 0.72rem;
+        font-weight: 500;
+        text-transform: uppercase;
+        letter-spacing: 0.08em;
+        color: #bbb;
+        margin-bottom: 24px;
+        text-align: center;
+      }
+      .steps {
+        display: grid;
+        grid-template-columns: 1fr 1fr 1fr;
+        gap: 20px;
+      }
+      .step {
+        background: #fff;
+        border: 1px solid #eae8e3;
+        border-radius: 14px;
+        padding: 24px 20px;
+      }
+      .step-num {
+        font-size: 0.7rem;
+        font-weight: 600;
+        color: #bbb;
+        margin-bottom: 10px;
+      }
+      .step h3 {
+        font-size: 0.9rem;
+        font-weight: 600;
+        color: #111;
+        margin-bottom: 8px;
+        letter-spacing: -0.01em;
+      }
+      .step p {
+        font-size: 0.8rem;
+        color: #888;
+        line-height: 1.5;
+      }
+      .step code {
+        font-size: 0.75rem;
+        background: #f5f3ef;
+        padding: 2px 6px;
+        border-radius: 4px;
+        color: #555;
+      }
+
+      /* Install */
+      .install-section {
+        max-width: 560px;
+        margin: 56px auto 0;
+        padding: 0 24px;
+      }
+      .install-box {
+        background: #111;
+        border-radius: 12px;
+        padding: 24px 28px;
+        color: #e0e0e0;
+        font-family: 'SF Mono', 'Fira Code', 'Consolas', monospace;
+        font-size: 0.82rem;
+        line-height: 1.8;
+        overflow-x: auto;
+      }
+      .install-box .comment { color: #666; }
+      .install-box .cmd { color: #4ade80; }
+
+      /* Compare banner */
+      .compare-banner {
+        max-width: 800px;
+        margin: 48px auto 0;
+        padding: 0 24px;
+      }
+      .compare-inner {
+        background: #fff;
+        border: 1px solid #eae8e3;
+        border-radius: 14px;
+        padding: 28px 32px;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 20px;
+      }
+      .compare-text h3 {
+        font-size: 0.95rem;
+        font-weight: 600;
+        color: #111;
+        letter-spacing: -0.01em;
+      }
+      .compare-text p {
+        font-size: 0.82rem;
+        color: #888;
+        margin-top: 4px;
+      }
+      .compare-inner a {
+        font-size: 0.82rem;
+        font-weight: 500;
+        color: #111;
+        text-decoration: none;
+        padding: 8px 20px;
+        border: 1.5px solid #ddd9d0;
+        border-radius: 8px;
+        white-space: nowrap;
+        transition: all 0.15s;
+      }
+      .compare-inner a:hover {
+        border-color: #111;
+      }
+
+      /* Footer */
+      .footer {
+        max-width: 800px;
+        margin: 56px auto 64px;
+        padding: 0 24px;
+        text-align: center;
+        font-size: 0.75rem;
+        color: #ccc;
+      }
+      .footer a {
+        color: #999;
+        text-decoration: none;
+        margin: 0 10px;
+        transition: color 0.15s;
+      }
+      .footer a:hover { color: #111; }
+      .footer .sep { margin: 0 4px; color: #ddd; }
+
+      @media (max-width: 640px) {
+        .hero { padding-top: 40px; }
+        .hero h1 { font-size: 2rem; }
+        .steps { grid-template-columns: 1fr; }
+        .compare-inner { flex-direction: column; text-align: center; }
+      }
     </style>
   </head>
   <body>
-    <h1>Sift</h1>
-    <p class="subtitle">Semantic search for static sites</p>
-    <sift-search db="/sift-index.db"></sift-search>
-    <script type="module" src="/src/main.js"></script>
+
+    <div class="hero">
+      <span class="hero-badge">v0.2.0 — bge-small-en-v1.5</span>
+      <h1>Search by meaning,<br>not just keywords</h1>
+      <p>Semantic search for static sites. Two commands to install, zero servers to run. Works on Netlify, Vercel, GitHub Pages, Cloudflare — anywhere you serve files.</p>
+      <div class="hero-links">
+        <a href="https://github.com/romanI04/sift" class="btn-primary">View on GitHub</a>
+        <a href="/compare.html" class="btn-secondary">See comparison</a>
+      </div>
+    </div>
+
+    <div class="try-section">
+      <div class="try-label">Try it live</div>
+      <div class="try-context">Searching FastAPI's full documentation — 146 pages, 2,123 chunks</div>
+      <div class="suggestions" id="suggestions">
+        <button class="suggestion" data-q="how to protect my API from unauthorized access">how to protect my API</button>
+        <button class="suggestion" data-q="handling file uploads from users">file uploads</button>
+        <button class="suggestion" data-q="running background jobs">background jobs</button>
+        <button class="suggestion" data-q="database connection and setup">database setup</button>
+      </div>
+      <sift-search db="/sift-index.db"></sift-search>
+    </div>
+
+    <div class="how-section">
+      <div class="section-title">How it works</div>
+      <div class="steps">
+        <div class="step">
+          <div class="step-num">01</div>
+          <h3>Index at build time</h3>
+          <p>Run <code>sift index ./docs</code> to chunk your content and compute embeddings. Output is a single SQLite file.</p>
+        </div>
+        <div class="step">
+          <div class="step-num">02</div>
+          <h3>Drop in the widget</h3>
+          <p>Add <code>&lt;sift-search&gt;</code> to your HTML. 94KB bundle, loads on demand. No build step required.</p>
+        </div>
+        <div class="step">
+          <div class="step-num">03</div>
+          <h3>Search runs client-side</h3>
+          <p>Keywords match instantly via FTS5. The ML model loads in a WebWorker and upgrades results to semantic.</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="install-section">
+      <div class="section-title">Install in 30 seconds</div>
+      <div class="install-box">
+        <span class="comment"># index your docs</span><br>
+        <span class="cmd">pip install sift-search</span><br>
+        <span class="cmd">sift index ./docs -o public/sift-index.db</span><br>
+        <br>
+        <span class="comment"># add to your site</span><br>
+        <span class="cmd">&lt;sift-search db="/sift-index.db"&gt;&lt;/sift-search&gt;</span>
+      </div>
+    </div>
+
+    <div class="compare-banner">
+      <div class="compare-inner">
+        <div class="compare-text">
+          <h3>Keyword search vs Sift — side by side</h3>
+          <p>Same query, same docs. See what semantic search finds that keywords miss.</p>
+        </div>
+        <a href="/compare.html">Open comparison</a>
+      </div>
+    </div>
+
+    <div class="footer">
+      <a href="https://pypi.org/project/sift-search/">PyPI</a>
+      <span class="sep">/</span>
+      <a href="https://www.npmjs.com/package/sift-search">npm</a>
+      <span class="sep">/</span>
+      <a href="https://github.com/romanI04/sift">GitHub</a>
+      <span class="sep">/</span>
+      <a href="https://github.com/romanI04/sift/blob/master/docs/guide.md">Docs</a>
+    </div>
+
+    <script type="module">
+      import "sift-search";
+
+      // Wire suggestion chips to the search widget
+      document.getElementById("suggestions").addEventListener("click", (e) => {
+        const btn = e.target.closest(".suggestion");
+        if (!btn) return;
+        const widget = document.querySelector("sift-search");
+        const input = widget?.shadowRoot?.querySelector("input");
+        if (input) {
+          input.value = btn.dataset.q;
+          input.dispatchEvent(new Event("input", { bubbles: true }));
+        }
+      });
+    </script>
   </body>
 </html>
