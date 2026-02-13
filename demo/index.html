@@ -13,6 +13,7 @@
     <meta name="twitter:title" content="Sift — Your readers can't find your best writing" />
     <meta name="twitter:description" content="Substack search only matches titles. Sift searches your entire archive by meaning." />
     <meta name="twitter:image" content="https://sift-search.pages.dev/og-acx.png" />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
@@ -26,11 +27,35 @@
         -webkit-font-smoothing: antialiased;
       }
 
+      /* Header */
+      .site-header {
+        max-width: 800px;
+        margin: 0 auto;
+        padding: 20px 24px;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+      }
+      .site-logo {
+        font-size: 1rem;
+        font-weight: 700;
+        color: #111;
+        text-decoration: none;
+        letter-spacing: -0.03em;
+      }
+      .site-nav a {
+        font-size: 0.78rem;
+        color: #999;
+        text-decoration: none;
+        transition: color 0.15s;
+      }
+      .site-nav a:hover { color: #111; }
+
       /* Hero */
       .hero {
         max-width: 680px;
         margin: 0 auto;
-        padding: 72px 24px 0;
+        padding: 40px 24px 0;
         text-align: center;
       }
       .hero h1 {
@@ -68,101 +93,96 @@
       }
       .cta-primary:hover { background: #333; }
 
-      /* Comparison section */
-      .comparison-section {
-        max-width: 800px;
+      /* Demo narrative section */
+      .demo-section {
+        max-width: 560px;
         margin: 64px auto 0;
         padding: 0 24px;
       }
-      .section-title {
-        font-size: 0.72rem;
-        font-weight: 500;
-        text-transform: uppercase;
-        letter-spacing: 0.08em;
-        color: #bbb;
-        margin-bottom: 20px;
-        text-align: center;
-      }
-      .hero-query {
-        max-width: 640px;
-        margin: 0 auto 16px;
-        padding: 14px 18px;
+      .demo-query {
+        padding: 16px 20px;
         background: #fff;
         border: 2px solid #e0ddd6;
         border-radius: 12px;
         font-size: 0.95rem;
         color: #1a1a1a;
-        text-align: left;
       }
-      .hero-query .q-icon { color: #ccc; margin-right: 8px; }
-
-      .comparison {
-        display: grid;
-        grid-template-columns: 1fr 1fr;
-        gap: 14px;
-      }
-      .col {
-        background: #fff;
-        border-radius: 14px;
-        border: 1px solid #eae8e3;
-        overflow: hidden;
-      }
-      .col-head {
-        padding: 12px 18px;
-        border-bottom: 1px solid #f2f0eb;
-        display: flex;
-        align-items: center;
-        justify-content: space-between;
-      }
-      .col-name {
-        font-weight: 600;
-        font-size: 0.8rem;
-        letter-spacing: -0.01em;
-      }
-      .col-left .col-name { color: #999; }
-      .col-right .col-name { color: #111; }
-      .col-body { padding: 6px 18px 18px; }
-      .hit {
-        display: block;
-        text-decoration: none;
-        color: inherit;
-        padding: 12px 0;
-        border-bottom: 1px solid #f5f3ef;
-      }
-      .hit:last-child { border-bottom: none; }
-      .hit-title {
+      .demo-query .q-label {
+        font-size: 0.68rem;
         font-weight: 500;
-        font-size: 0.85rem;
+        text-transform: uppercase;
+        letter-spacing: 0.06em;
+        color: #bbb;
+        margin-bottom: 6px;
+      }
+      .demo-arrow {
+        text-align: center;
+        padding: 16px 0;
+        color: #ddd;
+        font-size: 1.2rem;
+      }
+      .demo-wrong {
+        padding: 16px 20px;
+        background: #fff;
+        border: 1px solid #eae8e3;
+        border-radius: 12px;
+        opacity: 0.5;
+      }
+      .demo-wrong-label {
+        font-size: 0.68rem;
+        font-weight: 500;
+        text-transform: uppercase;
+        letter-spacing: 0.06em;
+        color: #ccc;
+        margin-bottom: 10px;
+      }
+      .wrong-hit {
+        padding: 8px 0;
+        color: #bbb;
+        font-size: 0.82rem;
+        text-decoration: line-through;
+        text-decoration-color: #ddd;
+      }
+      .demo-right {
+        padding: 20px;
+        background: #fff;
+        border: 2px solid #111;
+        border-radius: 12px;
+      }
+      .demo-right-label {
+        font-size: 0.68rem;
+        font-weight: 500;
+        text-transform: uppercase;
+        letter-spacing: 0.06em;
+        color: #2d8a42;
+        margin-bottom: 10px;
+      }
+      .right-hit-title {
+        font-weight: 600;
+        font-size: 0.95rem;
+        color: #111;
         letter-spacing: -0.01em;
       }
-      .col-left .hit-title { color: #999; }
-      .col-right .hit-title { color: #111; }
-      .hit-snippet {
-        font-size: 0.78rem;
-        color: #888;
-        margin-top: 4px;
-        line-height: 1.5;
+      .right-hit-snippet {
+        font-size: 0.82rem;
+        color: #777;
+        margin-top: 6px;
+        line-height: 1.55;
       }
-
-      .verdict-bar {
-        margin-top: 12px;
+      .demo-cta {
+        text-align: center;
+        margin-top: 20px;
       }
-      .verdict-inner {
-        background: #111;
-        color: #fff;
-        padding: 12px 18px;
-        border-radius: 10px;
-        font-size: 0.8rem;
-        display: flex;
-        align-items: center;
-        gap: 9px;
+      .demo-cta a {
+        font-size: 0.82rem;
+        color: #111;
+        text-decoration: none;
+        font-weight: 500;
+        border-bottom: 1px solid #ddd;
+        padding-bottom: 1px;
+        transition: border-color 0.15s;
       }
-      .verdict-dot {
-        width: 6px; height: 6px;
-        border-radius: 50%;
-        background: #4ade80;
-        flex-shrink: 0;
-      }
+      .demo-cta a:hover { border-color: #111; }
 
       .divider {
         max-width: 800px;
@@ -314,13 +334,20 @@
       @media (max-width: 640px) {
         .hero { padding-top: 48px; }
         .hero h1 { font-size: 2rem; }
-        .comparison { grid-template-columns: 1fr; }
+        .demo-section { margin-top: 48px; }
         .steps { grid-template-columns: 1fr; }
         .waitlist-box { padding: 28px 20px; }
       }
     </style>
   </head>
   <body>
+
+    <header class="site-header">
+      <a href="/" class="site-logo">Sift</a>
+      <nav class="site-nav">
+        <a href="/acx">Live demo</a>
+      </nav>
+    </header>
 
     <div class="hero">
       <h1>Your readers can't find<br>your best writing</h1>
@@ -330,55 +357,32 @@
       </div>
     </div>
 
-    <!-- The problem: side-by-side comparison -->
-    <div class="comparison-section">
-      <div class="section-title">Same query. Different results.</div>
-      <div class="hero-query"><span class="q-icon">Q</span> that essay about how medications might not work the way we think</div>
-      <div class="comparison">
-        <div class="col col-left">
-          <div class="col-head">
-            <span class="col-name">Substack Search</span>
-          </div>
-          <div class="col-body">
-            <div class="hit">
-              <div class="hit-title">All Medications Are Insignificant In The Eyes Of God And...</div>
-              <div class="hit-snippet">My claim isn't that the concept of statistical significance is meaningless. It's that its particular...</div>
-            </div>
-            <div class="hit">
-              <div class="hit-title">Drug Users Use A Lot Of Drugs</div>
-              <div class="hit-snippet">Someone on the subreddit posted a discussion of this graph, showing the distribution of alcohol...</div>
-            </div>
-            <div class="hit">
-              <div class="hit-title">The Government Is Making Telemedicine Hard And Inconvenient</div>
-              <div class="hit-snippet">In most states, it's illegal to prescribe controlled substances via telemedicine unless you've had...</div>
-            </div>
-          </div>
-        </div>
-        <div class="col col-right">
-          <div class="col-head">
-            <span class="col-name">Sift</span>
-          </div>
-          <div class="col-body">
-            <div class="hit">
-              <div class="hit-title">Contra Hanson On Medical Effectiveness</div>
-              <div class="hit-snippet">We have strong direct evidence that medicine works, both in the form of randomized controlled trials...</div>
-            </div>
-            <div class="hit">
-              <div class="hit-title">Pascalian Medicine</div>
-              <div class="hit-snippet">If it became generally accepted to prescribe lots of pills that probably didn't work, and patients k...</div>
-            </div>
-            <div class="hit">
-              <div class="hit-title">Highlights From The Comments On Health Care</div>
-              <div class="hit-snippet">Some outcomes are relatively easy to measure and correlate... my point is that the relationship betwe...</div>
-            </div>
-          </div>
-        </div>
+    <!-- The problem → solution narrative -->
+    <div class="demo-section">
+      <div class="demo-query">
+        <div class="q-label">A reader searches your archive</div>
+        that essay about how medications might not work the way we think
       </div>
-      <div class="verdict-bar">
-        <div class="verdict-inner">
-          <div class="verdict-dot"></div>
-          One searches titles. The other searches content.
-        </div>
+
+      <div class="demo-arrow">&darr;</div>
+
+      <div class="demo-wrong">
+        <div class="demo-wrong-label">Substack returns</div>
+        <div class="wrong-hit">All Medications Are Insignificant In The Eyes Of God And...</div>
+        <div class="wrong-hit">Drug Users Use A Lot Of Drugs</div>
+        <div class="wrong-hit">The Government Is Making Telemedicine Hard And Inconvenient</div>
+      </div>
+
+      <div class="demo-arrow">&darr;</div>
+
+      <div class="demo-right">
+        <div class="demo-right-label">Sift finds</div>
+        <div class="right-hit-title">Contra Hanson On Medical Effectiveness</div>
+        <div class="right-hit-snippet">We have strong direct evidence that medicine works, both in the form of randomized controlled trials showing that specific treatments work...</div>
+      </div>
+
+      <div class="demo-cta">
+        <a href="/acx">Try it yourself on 1,078 posts &rarr;</a>
       </div>
     </div>
 
@@ -424,9 +428,9 @@
     </div>
 
     <div class="footer">
-      Built with <a href="https://github.com/romanI04/sift">Sift</a> (open source)
+      <a href="mailto:globescape2024@gmail.com">Contact</a>
       <span class="sep">/</span>
-      Search runs in the browser. No data leaves your device.
+      <a href="/privacy">Privacy</a>
     </div>
 
     <script>
@@ -459,7 +463,7 @@
           const data = await resp.json();
 
           if (resp.ok) {
-            msg.textContent = data.message || "You're on the list!";
+            msg.textContent = "You're on the list! We'll index your archive and email you when your search page is ready.";
             msg.className = "form-msg success";
             msg.style.display = "block";
             form.reset();

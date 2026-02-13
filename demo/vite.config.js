@@ -10,6 +10,7 @@ export default defineConfig({
         main: resolve(__dirname, "index.html"),
         compare: resolve(__dirname, "compare.html"),
         acx: resolve(__dirname, "acx.html"),
+        privacy: resolve(__dirname, "privacy.html"),
       },
     },
   },

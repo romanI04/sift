@@ -13,6 +13,7 @@
     <meta name="twitter:title" content="Search 1,000+ Astral Codex Ten posts by meaning" />
     <meta name="twitter:description" content="Substack search matches titles. This searches by concept. Try it." />
     <meta name="twitter:image" content="https://sift-search.pages.dev/og-acx.png" />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
@@ -505,9 +506,11 @@
     </div>
 
     <div class="footer">
-      Powered by <a href="/">Sift</a> <span class="sep">/</span>
-      <a href="https://github.com/romanI04/sift">GitHub</a> <span class="sep">/</span>
-      All search runs in your browser. No data leaves your device.
+      Powered by <a href="/">Sift</a>
+      <span class="sep">/</span>
+      <a href="mailto:globescape2024@gmail.com">Contact</a>
+      <span class="sep">/</span>
+      <a href="/privacy">Privacy</a>
     </div>
 
     <script type="module">
@@ -766,7 +769,7 @@
           const data = await resp.json();
 
           if (resp.ok) {
-            msg.textContent = data.message || "You're on the list!";
+            msg.textContent = "You're on the list! We'll index your archive and email you when your search page is ready.";
             msg.className = "form-msg success";
             msg.style.display = "block";
             form.reset();
