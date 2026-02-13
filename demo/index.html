@@ -4,7 +4,9 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Sift — Search by Meaning, Not Just Keywords</title>
-    <meta name="description" content="Semantic search that runs entirely in the browser. No server, no API keys, no monthly bill. Works on any site." />
+    <meta name="description" content="Semantic search that runs entirely in the browser. No server, no API keys, no monthly bill." />
+    <meta property="og:title" content="Sift — Search by Meaning, Not Just Keywords" />
+    <meta property="og:description" content="Open-source semantic search that runs entirely in the browser. See it live on 1,000+ blog posts." />
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
@@ -18,208 +20,100 @@
         -webkit-font-smoothing: antialiased;
       }
 
-      /* Hero */
       .hero {
-        max-width: 720px;
+        max-width: 680px;
         margin: 0 auto;
-        padding: 48px 24px 0;
+        padding: 72px 24px 0;
         text-align: center;
       }
       .hero h1 {
-        font-size: 2.6rem;
+        font-size: 2.8rem;
         font-weight: 700;
-        letter-spacing: -0.04em;
+        letter-spacing: -0.045em;
         line-height: 1.1;
         color: #111;
       }
       .hero .subtitle {
         font-size: 1.1rem;
         color: #777;
-        margin-top: 14px;
-        line-height: 1.5;
+        margin-top: 16px;
+        line-height: 1.6;
       }
-
-      /* Search area */
-      .search-area {
-        max-width: 640px;
-        margin: 32px auto 0;
-        padding: 0 24px;
-      }
-      .search-input {
-        width: 100%;
-        padding: 16px 20px;
-        font-size: 1rem;
-        font-family: inherit;
-        border: 2px solid #e0ddd6;
-        border-radius: 12px;
-        outline: none;
-        background: #fff;
-        color: #1a1a1a;
-        transition: border-color 0.15s;
-      }
-      .search-input:focus { border-color: #111; }
-      .search-input::placeholder { color: #ccc; }
-      .search-meta {
+      .cta-row {
+        margin-top: 28px;
         display: flex;
-        align-items: center;
-        justify-content: space-between;
-        margin-top: 10px;
-      }
-      .chips {
-        display: flex;
+        gap: 12px;
+        justify-content: center;
         flex-wrap: wrap;
-        gap: 6px;
       }
-      .chip {
+      .cta-primary {
+        display: inline-block;
+        padding: 14px 32px;
+        background: #111;
+        color: #fff;
+        border-radius: 100px;
+        font-size: 0.9rem;
+        font-weight: 500;
+        text-decoration: none;
+        letter-spacing: -0.01em;
+        transition: background 0.15s;
+        font-family: inherit;
+      }
+      .cta-primary:hover { background: #333; }
+      .cta-secondary {
+        display: inline-block;
+        padding: 14px 32px;
         background: transparent;
+        color: #555;
         border: 1px solid #ddd9d0;
         border-radius: 100px;
-        padding: 5px 14px;
-        font-size: 0.75rem;
-        font-family: inherit;
-        color: #777;
-        cursor: pointer;
+        font-size: 0.9rem;
+        font-weight: 500;
+        text-decoration: none;
+        letter-spacing: -0.01em;
         transition: all 0.15s;
+        font-family: inherit;
       }
-      .chip:hover {
-        background: #111;
-        color: #fff;
-        border-color: #111;
-      }
-      .status {
-        font-size: 0.72rem;
-        color: #bbb;
-        white-space: nowrap;
-        margin-left: 12px;
-      }
-      .context-line {
-        text-align: center;
-        font-size: 0.78rem;
-        color: #bbb;
-        margin-top: 6px;
-      }
+      .cta-secondary:hover { border-color: #111; color: #111; }
 
-      /* Panels */
-      .panels {
-        max-width: 1040px;
-        margin: 24px auto 0;
+      .props {
+        max-width: 720px;
+        margin: 64px auto 0;
         padding: 0 24px;
         display: grid;
-        grid-template-columns: 1fr 1fr;
+        grid-template-columns: 1fr 1fr 1fr;
         gap: 16px;
       }
-      .panel {
-        background: #fff;
-        border-radius: 16px;
-        border: 1px solid #eae8e3;
-        overflow: hidden;
-      }
-      .panel-head {
-        padding: 14px 20px;
-        display: flex;
-        align-items: center;
-        justify-content: space-between;
-        border-bottom: 1px solid #f2f0eb;
-      }
-      .panel-name {
-        font-weight: 600;
-        font-size: 0.82rem;
-        letter-spacing: -0.01em;
-      }
-      .panel-keyword .panel-name { color: #999; }
-      .panel-semantic .panel-name { color: #111; }
-      .tag {
-        font-size: 0.62rem;
-        font-weight: 500;
-        padding: 3px 10px;
-        border-radius: 100px;
-        letter-spacing: 0.03em;
-        text-transform: uppercase;
-      }
-      .tag-keyword { background: #f5f0ee; color: #b8574b; }
-      .tag-semantic { background: #ecf5ee; color: #2d8a42; }
-      .panel-body {
-        padding: 4px 20px 20px;
-        min-height: 220px;
-      }
-      .empty {
-        color: #d0ccc4;
-        font-size: 0.85rem;
+      .prop {
         text-align: center;
-        padding: 64px 20px;
-        font-weight: 400;
+        padding: 28px 16px;
       }
-
-      /* Results */
-      .result {
-        display: block;
-        text-decoration: none;
-        color: inherit;
-        padding: 14px 0;
-        border-bottom: 1px solid #f5f3ef;
+      .prop-icon {
+        font-size: 1.5rem;
+        margin-bottom: 12px;
       }
-      .result:last-child { border-bottom: none; }
-      .result-title {
-        font-weight: 500;
+      .prop h3 {
         font-size: 0.88rem;
+        font-weight: 600;
+        color: #111;
         letter-spacing: -0.01em;
       }
-      .panel-keyword .result-title { color: #777; }
-      .panel-semantic .result-title { color: #111; }
-      .result-url {
-        font-size: 0.7rem;
-        color: #c0bbb3;
-        margin-top: 2px;
-      }
-      .result-snippet {
+      .prop p {
         font-size: 0.8rem;
         color: #888;
-        margin-top: 5px;
+        margin-top: 6px;
         line-height: 1.5;
       }
 
-      /* Verdict */
-      .verdict {
-        max-width: 1040px;
-        margin: 14px auto 0;
-        padding: 0 24px;
-        display: none;
-      }
-      .verdict.show { display: block; }
-      .verdict-inner {
-        background: #111;
-        color: #fff;
-        padding: 13px 20px;
-        border-radius: 12px;
-        font-size: 0.82rem;
-        font-weight: 400;
-        display: flex;
-        align-items: center;
-        gap: 10px;
-        letter-spacing: -0.01em;
-      }
-      .verdict-dot {
-        width: 6px;
-        height: 6px;
-        border-radius: 50%;
-        background: #4ade80;
-        flex-shrink: 0;
-      }
-
-      /* Divider */
       .divider {
-        max-width: 1040px;
-        margin: 56px auto 0;
+        max-width: 720px;
+        margin: 48px auto 0;
         padding: 0 24px;
       }
-      .divider hr {
-        border: none;
-        border-top: 1px solid #eae8e3;
-      }
+      .divider hr { border: none; border-top: 1px solid #eae8e3; }
 
-      /* How section */
       .how-section {
-        max-width: 800px;
+        max-width: 720px;
         margin: 48px auto 0;
         padding: 0 24px;
       }
@@ -235,7 +129,7 @@
       .steps {
         display: grid;
         grid-template-columns: 1fr 1fr 1fr;
-        gap: 20px;
+        gap: 16px;
       }
       .step {
         background: #fff;
@@ -250,29 +144,28 @@
         margin-bottom: 10px;
       }
       .step h3 {
-        font-size: 0.9rem;
+        font-size: 0.88rem;
         font-weight: 600;
         color: #111;
         margin-bottom: 8px;
         letter-spacing: -0.01em;
       }
       .step p {
-        font-size: 0.8rem;
+        font-size: 0.78rem;
         color: #888;
         line-height: 1.5;
       }
       .step code {
-        font-size: 0.75rem;
+        font-size: 0.73rem;
         background: #f5f3ef;
         padding: 2px 6px;
         border-radius: 4px;
         color: #555;
       }
 
-      /* Install */
       .install-section {
-        max-width: 560px;
-        margin: 48px auto 0;
+        max-width: 520px;
+        margin: 40px auto 0;
         padding: 0 24px;
       }
       .install-box {
@@ -281,16 +174,15 @@
         padding: 24px 28px;
         color: #e0e0e0;
         font-family: 'SF Mono', 'Fira Code', 'Consolas', monospace;
-        font-size: 0.82rem;
-        line-height: 1.8;
+        font-size: 0.8rem;
+        line-height: 1.9;
         overflow-x: auto;
       }
       .install-box .comment { color: #666; }
       .install-box .cmd { color: #4ade80; }
 
-      /* Footer */
       .footer {
-        max-width: 1040px;
+        max-width: 720px;
         margin: 56px auto 64px;
         padding: 0 24px;
         text-align: center;
@@ -306,10 +198,10 @@
       .footer a:hover { color: #111; }
       .footer .sep { margin: 0 4px; color: #ddd; }
 
-      @media (max-width: 700px) {
-        .panels { grid-template-columns: 1fr; }
-        .hero { padding-top: 32px; }
-        .hero h1 { font-size: 1.8rem; }
+      @media (max-width: 640px) {
+        .hero { padding-top: 48px; }
+        .hero h1 { font-size: 2rem; }
+        .props { grid-template-columns: 1fr; gap: 0; }
         .steps { grid-template-columns: 1fr; }
       }
     </style>
@@ -319,80 +211,58 @@
     <div class="hero">
       <h1>Search by meaning,<br>not just keywords</h1>
       <p class="subtitle">Open-source semantic search that runs entirely in the browser.<br>No server. No API keys. No monthly bill.</p>
-      <a href="/acx.html" style="display:inline-block;margin-top:20px;padding:12px 28px;background:#111;color:#fff;border-radius:100px;font-size:0.88rem;font-weight:500;text-decoration:none;letter-spacing:-0.01em;transition:background 0.15s">See it live on 1,000+ blog posts</a>
-    </div>
-
-    <div class="search-area">
-      <input type="text" class="search-input" id="searchBox" placeholder="Try: how do I keep hackers out of my API?" disabled />
-      <div class="search-meta">
-        <div class="chips" id="suggestions">
-          <span class="chip" data-q="how do I keep hackers out of my API?">keep hackers out</span>
-          <span class="chip" data-q="my app is too slow, how to make it faster?">make it faster</span>
-          <span class="chip" data-q="how do I let users upload photos?">upload photos</span>
-          <span class="chip" data-q="I need to run something every hour automatically">run every hour</span>
-          <span class="chip" data-q="what's the best way to organize a big project?">organize big project</span>
-        </div>
-        <span class="status" id="status">Loading...</span>
-      </div>
-      <div class="context-line">Live demo — searching FastAPI documentation (146 pages)</div>
-    </div>
-
-    <div class="panels">
-      <div class="panel panel-keyword">
-        <div class="panel-head">
-          <span class="panel-name">Keyword Search</span>
-          <span class="tag tag-keyword">Exact match</span>
-        </div>
-        <div class="panel-body" id="keywordResults">
-          <div class="empty">Results will appear here...</div>
-        </div>
-      </div>
-      <div class="panel panel-semantic">
-        <div class="panel-head">
-          <span class="panel-name">Sift</span>
-          <span class="tag tag-semantic">Understands meaning</span>
-        </div>
-        <div class="panel-body" id="semanticResults">
-          <div class="empty">Results will appear here...</div>
-        </div>
+      <div class="cta-row">
+        <a href="/acx.html" class="cta-primary">See it live on 1,000+ posts</a>
+        <a href="https://github.com/romanI04/sift" class="cta-secondary">GitHub</a>
       </div>
     </div>
 
-    <div class="verdict" id="verdict">
-      <div class="verdict-inner">
-        <div class="verdict-dot"></div>
-        <span id="verdictText"></span>
+    <div class="props">
+      <div class="prop">
+        <div class="prop-icon">~</div>
+        <h3>Runs in the browser</h3>
+        <p>ML model loads once, then every search is instant. No server calls, no latency, no cost per query.</p>
+      </div>
+      <div class="prop">
+        <div class="prop-icon">/</div>
+        <h3>One static file</h3>
+        <p>Your content becomes a single .db file. Host it anywhere — Netlify, Vercel, GitHub Pages, S3.</p>
+      </div>
+      <div class="prop">
+        <div class="prop-icon">*</div>
+        <h3>Understands questions</h3>
+        <p>Ask "how do I handle errors" and find the right page — even if it never mentions the word "error."</p>
       </div>
     </div>
 
     <div class="divider"><hr></div>
 
     <div class="how-section">
-      <div class="section-title">Add it to your site in 30 seconds</div>
+      <div class="section-title">Add to any site in 30 seconds</div>
       <div class="steps">
         <div class="step">
           <div class="step-num">01</div>
           <h3>Index your content</h3>
-          <p><code>pip install sift-search</code> then <code>sift index ./docs</code>. Reads your pages, outputs one file.</p>
+          <p><code>pip install sift-search</code> then <code>sift index ./content</code>. Reads your pages, outputs one file.</p>
         </div>
         <div class="step">
           <div class="step-num">02</div>
           <h3>Drop in one tag</h3>
-          <p>Add <code>&lt;sift-search&gt;</code> to your HTML. That's it. 28KB gzipped.</p>
+          <p>Add <code>&lt;sift-search&gt;</code> to your HTML. 28KB gzipped. Works with any framework or plain HTML.</p>
         </div>
         <div class="step">
           <div class="step-num">03</div>
-          <h3>No server needed</h3>
-          <p>Everything runs in your visitor's browser. Host on Netlify, Vercel, GitHub Pages — anywhere.</p>
+          <h3>Deploy</h3>
+          <p>Push to your host. Everything runs client-side. Zero backend, zero ongoing cost.</p>
         </div>
       </div>
     </div>
 
     <div class="install-section">
       <div class="install-box">
-        <span class="comment"># index your docs</span><br>
+        <span class="comment"># index your content</span><br>
         <span class="cmd">pip install sift-search</span><br>
-        <span class="cmd">sift index ./docs -o public/sift-index.db</span><br>
+        <span class="cmd">sift index ./content -o public/sift-index.db</span><br>
         <br>
         <span class="comment"># add to your HTML</span><br>
         <span class="cmd">&lt;sift-search db="/sift-index.db"&gt;&lt;/sift-search&gt;</span>
@@ -409,227 +279,5 @@
       <a href="https://github.com/romanI04/sift/blob/master/docs/guide.md">Docs</a>
     </div>
 
-    <script type="module">
-      import { createDbWorker } from "sql.js-httpvfs";
-
-      const SQLJS_CDN = "https://cdn.jsdelivr.net/npm/sql.js-httpvfs@0.8.12/dist";
-      const SQLJS_FALLBACK = "https://cdn.jsdelivr.net/npm/sql.js@1.12.0/dist";
-
-      const searchBox = document.getElementById("searchBox");
-      const statusEl = document.getElementById("status");
-      const keywordEl = document.getElementById("keywordResults");
-      const semanticEl = document.getElementById("semanticResults");
-      const verdictEl = document.getElementById("verdict");
-      const verdictText = document.getElementById("verdictText");
-
-      let dbWorker, embedWorker, allVectors, modelReady = false;
-      let debounceTimer;
-
-      // Auto-run this query when the model is ready — shows the value immediately
-      const AUTO_QUERY = "how do I keep hackers out of my API?";
-
-      async function blobUrl(url) {
-        const r = await fetch(url);
-        return URL.createObjectURL(new Blob([await r.text()], { type: "text/javascript" }));
-      }
-
-      async function loadSqlJs() {
-        if (window.initSqlJs) return window.initSqlJs;
-        return new Promise((resolve, reject) => {
-          const s = document.createElement("script");
-          s.src = `${SQLJS_FALLBACK}/sql-wasm.js`;
-          s.onload = () => resolve(window.initSqlJs);
-          s.onerror = () => reject(new Error("Failed to load sql.js"));
-          document.head.appendChild(s);
-        });
-      }
-
-      function wrapSqlJsDb(sqlDb) {
-        return {
-          db: {
-            query: (sql, params = []) => {
-              const stmt = sqlDb.prepare(sql);
-              if (params && params.length) stmt.bind(params);
-              const rows = [];
-              while (stmt.step()) rows.push(stmt.getAsObject());
-              stmt.free();
-              return rows;
-            }
-          }
-        };
-      }
-
-      function makeEmbedWorker() {
-        const code = `
-          let extractor = null;
-          let vecs = null;
-          self.onmessage = async (e) => {
-            if (e.data.type === "init") {
-              const { pipeline } = await import("https://cdn.jsdelivr.net/npm/@huggingface/transformers@3");
-              extractor = await pipeline("feature-extraction", "Xenova/bge-small-en-v1.5", { dtype: "q8" });
-              self.postMessage({ type: "ready" });
-            } else if (e.data.type === "cache") {
-              vecs = e.data.vectors.map(v => ({ id: v.chunkId, vec: new Float32Array(v.vector) }));
-              self.postMessage({ type: "cached" });
-            } else if (e.data.type === "search") {
-              const out = await extractor(e.data.query, { pooling: "mean", normalize: true });
-              const qv = out.tolist()[0];
-              const scores = vecs.map(v => {
-                let s = 0; for (let i = 0; i < qv.length; i++) s += qv[i] * v.vec[i];
-                return { chunkId: v.id, score: s };
-              });
-              scores.sort((a, b) => b.score - a.score);
-              self.postMessage({ type: "results", results: scores.slice(0, 5) });
-            }
-          };
-        `;
-        return new Worker(URL.createObjectURL(new Blob([code], { type: "text/javascript" })), { type: "module" });
-      }
-
-      function renderResults(container, items) {
-        if (!items.length) {
-          container.innerHTML = `<div class="empty">No results found</div>`;
-          return;
-        }
-        container.innerHTML = items.map(r => `
-          <a href="${esc(r.url)}" class="result" target="_blank" rel="noopener">
-            <div class="result-title">${esc(r.title)}</div>
-            <div class="result-url">${esc(r.url)}</div>
-            <div class="result-snippet">${esc(snippet(r.content))}</div>
-          </a>
-        `).join("");
-      }
-
-      function snippet(t, max = 120) { return t.length > max ? t.slice(0, max) + "..." : t; }
-      function esc(s) { const d = document.createElement("div"); d.textContent = s; return d.innerHTML; }
-
-      async function lexicalSearch(q) {
-        const words = q.split(/\s+/).filter(w => w.length > 1);
-        if (!words.length) return [];
-        const fts = words.map(w => `"${w}"`).join(" OR ");
-        const rows = await dbWorker.db.query(`SELECT rowid FROM chunks_fts WHERE chunks_fts MATCH ? LIMIT 5`, [fts]);
-        if (!rows.length) return [];
-        const ids = rows.map(r => r.rowid);
-        const ph = ids.map(() => "?").join(",");
-        return dbWorker.db.query(`SELECT id, url, title, content FROM chunks WHERE id IN (${ph})`, ids);
-      }
-
-      async function doSearch(q) {
-        // Keyword search — instant
-        try {
-          const kw = await lexicalSearch(q);
-          renderResults(keywordEl, kw);
-        } catch {
-          keywordEl.innerHTML = `<div class="empty">No keyword matches</div>`;
-        }
-
-        // Semantic search
-        if (modelReady) {
-          semanticEl.innerHTML = `<div class="empty" style="padding:32px 20px">Thinking...</div>`;
-          embedWorker.postMessage({ type: "search", query: q });
-        } else {
-          semanticEl.innerHTML = `<div class="empty" style="padding:32px 20px">Loading ML model...</div>`;
-        }
-      }
-
-      (async () => {
-        const dbUrl = new URL("/sift-index.db", window.location.href).toString();
-
-        // Load SQLite index
-        if (typeof SharedArrayBuffer !== "undefined") {
-          statusEl.textContent = "Loading index...";
-          const workerUrl = await blobUrl(`${SQLJS_CDN}/sqlite.worker.js`);
-          dbWorker = await createDbWorker(
-            [{ from: "inline", config: { serverMode: "full", url: dbUrl, requestChunkSize: 4096 } }],
-            workerUrl,
-            `${SQLJS_CDN}/sql-wasm.wasm`
-          );
-        } else {
-          statusEl.textContent = "Downloading index...";
-          const [initSqlJs, dbBuf] = await Promise.all([
-            loadSqlJs(),
-            fetch(dbUrl).then(r => r.arrayBuffer())
-          ]);
-          const SQL = await initSqlJs({ locateFile: f => `${SQLJS_FALLBACK}/${f}` });
-          dbWorker = wrapSqlJsDb(new SQL.Database(new Uint8Array(dbBuf)));
-        }
-
-        // Load vectors
-        statusEl.textContent = "Loading vectors...";
-        const vecRows = await dbWorker.db.query("SELECT chunk_id, vector FROM embeddings");
-        allVectors = vecRows.map(r => ({
-          chunkId: r.chunk_id,
-          vector: new Float32Array(r.vector.buffer ? r.vector.buffer : new Uint8Array(r.vector).buffer),
-        }));
-
-        // Start embed worker
-        embedWorker = makeEmbedWorker();
-        embedWorker.onmessage = async (e) => {
-          if (e.data.type === "ready") {
-            modelReady = true;
-            statusEl.textContent = "Ready";
-
-            // Auto-run the demo query so visitors see the value immediately
-            const currentQuery = searchBox.value.trim() || AUTO_QUERY;
-            if (!searchBox.value.trim()) searchBox.value = AUTO_QUERY;
-            doSearch(currentQuery);
-          } else if (e.data.type === "results") {
-            const ids = e.data.results.map(r => r.chunkId);
-            if (!ids.length) { semanticEl.innerHTML = `<div class="empty">No results</div>`; return; }
-            const ph = ids.map(() => "?").join(",");
-            const chunks = await dbWorker.db.query(`SELECT id, url, title, content FROM chunks WHERE id IN (${ph})`, ids);
-            const scoreMap = new Map(e.data.results.map(r => [r.chunkId, r.score]));
-            const sorted = chunks.map(c => ({ ...c, score: scoreMap.get(c.id) || 0 })).sort((a, b) => b.score - a.score);
-            renderResults(semanticEl, sorted);
-
-            // Verdict: highlight when sift finds something keyword search missed
-            const kwTitles = [...keywordEl.querySelectorAll(".result-title")].map(el => el.textContent);
-            const semTitles = sorted.map(r => r.title);
-            if (semTitles.length && kwTitles.length && semTitles[0] !== kwTitles[0]) {
-              verdictText.textContent = `Sift found "${semTitles[0]}" — keyword search missed it.`;
-              verdictEl.classList.add("show");
-            } else if (semTitles.length && !kwTitles.length) {
-              verdictText.textContent = `Keyword search found nothing. Sift found "${semTitles[0]}".`;
-              verdictEl.classList.add("show");
-            } else {
-              verdictEl.classList.remove("show");
-            }
-          }
-        };
-
-        embedWorker.postMessage({ type: "cache", vectors: allVectors.map(v => ({ chunkId: v.chunkId, vector: Array.from(v.vector) })) });
-        embedWorker.postMessage({ type: "init" });
-
-        // Enable search immediately for keyword results
-        statusEl.textContent = "Loading ML model...";
-        searchBox.disabled = false;
-
-        // Run keyword search on the auto query right away (before model loads)
-        searchBox.value = AUTO_QUERY;
-        doSearch(AUTO_QUERY);
-
-        searchBox.addEventListener("input", () => {
-          clearTimeout(debounceTimer);
-          debounceTimer = setTimeout(() => {
-            const q = searchBox.value.trim();
-            if (q.length > 1) {
-              doSearch(q);
-            } else {
-              keywordEl.innerHTML = `<div class="empty">Type a query or click a suggestion</div>`;
-              semanticEl.innerHTML = `<div class="empty">Type a query or click a suggestion</div>`;
-              verdictEl.classList.remove("show");
-            }
-          }, 250);
-        });
-
-        document.getElementById("suggestions").addEventListener("click", (e) => {
-          const chip = e.target.closest(".chip");
-          if (chip && chip.dataset.q) {
-            searchBox.value = chip.dataset.q;
-            doSearch(chip.dataset.q);
-          }
-        });
-      })();
-    </script>
   </body>
 </html>
