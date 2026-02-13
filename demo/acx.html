@@ -303,6 +303,81 @@
         font-size: 0.85rem;
       }
 
+      /* Waitlist CTA */
+      .waitlist-section {
+        max-width: 560px;
+        margin: 48px auto 0;
+        padding: 0 24px;
+      }
+      .waitlist-box {
+        background: #fff;
+        border: 1px solid #eae8e3;
+        border-radius: 16px;
+        padding: 32px 28px;
+        text-align: center;
+      }
+      .waitlist-box h2 {
+        font-size: 1.2rem;
+        font-weight: 700;
+        letter-spacing: -0.03em;
+        color: #111;
+        margin-bottom: 6px;
+      }
+      .waitlist-box .wl-sub {
+        font-size: 0.82rem;
+        color: #888;
+        margin-bottom: 20px;
+        line-height: 1.5;
+      }
+      .waitlist-form {
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
+      }
+      .waitlist-form input {
+        width: 100%;
+        padding: 12px 14px;
+        font-size: 0.88rem;
+        font-family: inherit;
+        border: 1.5px solid #e0ddd6;
+        border-radius: 10px;
+        outline: none;
+        background: #fafaf8;
+        color: #1a1a1a;
+        transition: border-color 0.15s;
+      }
+      .waitlist-form input:focus { border-color: #111; }
+      .waitlist-form input::placeholder { color: #ccc; }
+      .waitlist-form button {
+        width: 100%;
+        padding: 12px;
+        font-size: 0.88rem;
+        font-weight: 600;
+        font-family: inherit;
+        background: #111;
+        color: #fff;
+        border: none;
+        border-radius: 10px;
+        cursor: pointer;
+        transition: background 0.15s;
+      }
+      .waitlist-form button:hover { background: #333; }
+      .waitlist-form button:disabled { background: #999; cursor: not-allowed; }
+      .form-note {
+        font-size: 0.7rem;
+        color: #bbb;
+        margin-top: 8px;
+      }
+      .form-msg {
+        font-size: 0.8rem;
+        margin-top: 10px;
+        padding: 10px;
+        border-radius: 8px;
+        display: none;
+      }
+      .form-msg.success { display: block; background: #ecf5ee; color: #2d8a42; }
+      .form-msg.error { display: block; background: #fef2f2; color: #b91c1c; }
+
       .footer {
         max-width: 800px;
         margin: 48px auto 56px;
@@ -410,6 +485,22 @@
       <div class="mode-label" id="modeLabel"></div>
       <div id="results">
         <div class="empty-state">Results will appear here</div>
+      </div>
+    </div>
+
+    <!-- Waitlist CTA -->
+    <div class="divider"><hr></div>
+    <div class="waitlist-section">
+      <div class="waitlist-box">
+        <h2>Want this for your newsletter?</h2>
+        <p class="wl-sub">We'll index your archive and send you a search page like this one.</p>
+        <form class="waitlist-form" id="waitlistForm">
+          <input type="url" name="newsletter_url" placeholder="Your newsletter URL (e.g. yourname.substack.com)" required />
+          <input type="email" name="email" placeholder="Your email" required />
+          <button type="submit">Get my search page</button>
+        </form>
+        <p class="form-note">Free while in beta. No credit card needed.</p>
+        <div class="form-msg" id="formMsg"></div>
       </div>
     </div>
 
@@ -645,6 +736,54 @@
           }
         });
       })();
+    </script>
+    <script>
+      const WAITLIST_API = "https://sift-waitlist.romaniv0411.workers.dev";
+
+      document.getElementById("waitlistForm").addEventListener("submit", async (e) => {
+        e.preventDefault();
+        const form = e.target;
+        const btn = form.querySelector("button");
+        const msg = document.getElementById("formMsg");
+        const email = form.email.value.trim();
+        let url = form.newsletter_url.value.trim();
+
+        if (url && !url.startsWith("http://") && !url.startsWith("https://")) {
+          url = "https://" + url;
+        }
+
+        btn.disabled = true;
+        btn.textContent = "Submitting...";
+        msg.className = "form-msg";
+        msg.style.display = "none";
+
+        try {
+          const resp = await fetch(WAITLIST_API, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ email, newsletter_url: url }),
+          });
+          const data = await resp.json();
+
+          if (resp.ok) {
+            msg.textContent = data.message || "You're on the list!";
+            msg.className = "form-msg success";
+            msg.style.display = "block";
+            form.reset();
+          } else {
+            msg.textContent = data.error || "Something went wrong. Try again.";
+            msg.className = "form-msg error";
+            msg.style.display = "block";
+          }
+        } catch {
+          msg.textContent = "Network error. Please try again.";
+          msg.className = "form-msg error";
+          msg.style.display = "block";
+        }
+
+        btn.disabled = false;
+        btn.textContent = "Get my search page";
+      });
     </script>
   </body>
 </html>

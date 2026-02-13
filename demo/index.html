@@ -3,15 +3,15 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Sift — Search by Meaning, Not Just Keywords</title>
-    <meta name="description" content="Semantic search that runs entirely in the browser. No server, no API keys, no monthly bill." />
-    <meta property="og:title" content="Sift — Search by Meaning, Not Just Keywords" />
-    <meta property="og:description" content="Open-source semantic search that runs entirely in the browser. See it live on 1,000+ blog posts." />
+    <title>Sift — Semantic Search for Newsletters</title>
+    <meta name="description" content="Your readers can't find your best writing. Sift adds real search to your newsletter archive — by meaning, not just titles." />
+    <meta property="og:title" content="Sift — Your readers can't find your best writing" />
+    <meta property="og:description" content="Substack search only matches titles. Sift searches your entire archive by meaning. See it live on 1,000+ posts." />
     <meta property="og:image" content="https://sift-search.pages.dev/og-acx.png" />
     <meta property="og:type" content="website" />
     <meta name="twitter:card" content="summary_large_image" />
-    <meta name="twitter:title" content="Sift — Search by Meaning, Not Just Keywords" />
-    <meta name="twitter:description" content="Open-source semantic search that runs entirely in the browser. See it live on 1,000+ blog posts." />
+    <meta name="twitter:title" content="Sift — Your readers can't find your best writing" />
+    <meta name="twitter:description" content="Substack search only matches titles. Sift searches your entire archive by meaning." />
     <meta name="twitter:image" content="https://sift-search.pages.dev/og-acx.png" />
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -26,6 +26,7 @@
         -webkit-font-smoothing: antialiased;
       }
 
+      /* Hero */
       .hero {
         max-width: 680px;
         margin: 0 auto;
@@ -66,61 +67,11 @@
         font-family: inherit;
       }
       .cta-primary:hover { background: #333; }
-      .cta-secondary {
-        display: inline-block;
-        padding: 14px 32px;
-        background: transparent;
-        color: #555;
-        border: 1px solid #ddd9d0;
-        border-radius: 100px;
-        font-size: 0.9rem;
-        font-weight: 500;
-        text-decoration: none;
-        letter-spacing: -0.01em;
-        transition: all 0.15s;
-        font-family: inherit;
-      }
-      .cta-secondary:hover { border-color: #111; color: #111; }
 
-      .props {
-        max-width: 720px;
+      /* Comparison section */
+      .comparison-section {
+        max-width: 800px;
         margin: 64px auto 0;
-        padding: 0 24px;
-        display: grid;
-        grid-template-columns: 1fr 1fr 1fr;
-        gap: 16px;
-      }
-      .prop {
-        text-align: center;
-        padding: 28px 16px;
-      }
-      .prop-icon {
-        font-size: 1.5rem;
-        margin-bottom: 12px;
-      }
-      .prop h3 {
-        font-size: 0.88rem;
-        font-weight: 600;
-        color: #111;
-        letter-spacing: -0.01em;
-      }
-      .prop p {
-        font-size: 0.8rem;
-        color: #888;
-        margin-top: 6px;
-        line-height: 1.5;
-      }
-
-      .divider {
-        max-width: 720px;
-        margin: 48px auto 0;
-        padding: 0 24px;
-      }
-      .divider hr { border: none; border-top: 1px solid #eae8e3; }
-
-      .how-section {
-        max-width: 720px;
-        margin: 48px auto 0;
         padding: 0 24px;
       }
       .section-title {
@@ -129,8 +80,102 @@
         text-transform: uppercase;
         letter-spacing: 0.08em;
         color: #bbb;
-        margin-bottom: 24px;
+        margin-bottom: 20px;
         text-align: center;
+      }
+      .hero-query {
+        max-width: 640px;
+        margin: 0 auto 16px;
+        padding: 14px 18px;
+        background: #fff;
+        border: 2px solid #e0ddd6;
+        border-radius: 12px;
+        font-size: 0.95rem;
+        color: #1a1a1a;
+        text-align: left;
+      }
+      .hero-query .q-icon { color: #ccc; margin-right: 8px; }
+
+      .comparison {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 14px;
+      }
+      .col {
+        background: #fff;
+        border-radius: 14px;
+        border: 1px solid #eae8e3;
+        overflow: hidden;
+      }
+      .col-head {
+        padding: 12px 18px;
+        border-bottom: 1px solid #f2f0eb;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+      }
+      .col-name {
+        font-weight: 600;
+        font-size: 0.8rem;
+        letter-spacing: -0.01em;
+      }
+      .col-left .col-name { color: #999; }
+      .col-right .col-name { color: #111; }
+      .col-body { padding: 6px 18px 18px; }
+      .hit {
+        display: block;
+        text-decoration: none;
+        color: inherit;
+        padding: 12px 0;
+        border-bottom: 1px solid #f5f3ef;
+      }
+      .hit:last-child { border-bottom: none; }
+      .hit-title {
+        font-weight: 500;
+        font-size: 0.85rem;
+        letter-spacing: -0.01em;
+      }
+      .col-left .hit-title { color: #999; }
+      .col-right .hit-title { color: #111; }
+      .hit-snippet {
+        font-size: 0.78rem;
+        color: #888;
+        margin-top: 4px;
+        line-height: 1.5;
+      }
+
+      .verdict-bar {
+        margin-top: 12px;
+      }
+      .verdict-inner {
+        background: #111;
+        color: #fff;
+        padding: 12px 18px;
+        border-radius: 10px;
+        font-size: 0.8rem;
+        display: flex;
+        align-items: center;
+        gap: 9px;
+      }
+      .verdict-dot {
+        width: 6px; height: 6px;
+        border-radius: 50%;
+        background: #4ade80;
+        flex-shrink: 0;
+      }
+
+      .divider {
+        max-width: 800px;
+        margin: 56px auto 0;
+        padding: 0 24px;
+      }
+      .divider hr { border: none; border-top: 1px solid #eae8e3; }
+
+      /* How it works */
+      .how-section {
+        max-width: 720px;
+        margin: 56px auto 0;
+        padding: 0 24px;
       }
       .steps {
         display: grid;
@@ -161,32 +206,95 @@
         color: #888;
         line-height: 1.5;
       }
-      .step code {
-        font-size: 0.73rem;
-        background: #f5f3ef;
-        padding: 2px 6px;
-        border-radius: 4px;
-        color: #555;
-      }
 
-      .install-section {
-        max-width: 520px;
-        margin: 40px auto 0;
+      /* Waitlist form */
+      .waitlist-section {
+        max-width: 560px;
+        margin: 56px auto 0;
         padding: 0 24px;
       }
-      .install-box {
-        background: #111;
-        border-radius: 12px;
-        padding: 24px 28px;
-        color: #e0e0e0;
-        font-family: 'SF Mono', 'Fira Code', 'Consolas', monospace;
-        font-size: 0.8rem;
-        line-height: 1.9;
-        overflow-x: auto;
+      .waitlist-box {
+        background: #fff;
+        border: 1px solid #eae8e3;
+        border-radius: 16px;
+        padding: 36px 32px;
+        text-align: center;
       }
-      .install-box .comment { color: #666; }
-      .install-box .cmd { color: #4ade80; }
+      .waitlist-box h2 {
+        font-size: 1.3rem;
+        font-weight: 700;
+        letter-spacing: -0.03em;
+        color: #111;
+        margin-bottom: 8px;
+      }
+      .waitlist-box .wl-sub {
+        font-size: 0.85rem;
+        color: #888;
+        margin-bottom: 24px;
+        line-height: 1.5;
+      }
+      .waitlist-form {
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
+      }
+      .waitlist-form input {
+        width: 100%;
+        padding: 14px 16px;
+        font-size: 0.9rem;
+        font-family: inherit;
+        border: 1.5px solid #e0ddd6;
+        border-radius: 10px;
+        outline: none;
+        background: #fafaf8;
+        color: #1a1a1a;
+        transition: border-color 0.15s;
+      }
+      .waitlist-form input:focus { border-color: #111; }
+      .waitlist-form input::placeholder { color: #ccc; }
+      .waitlist-form button {
+        width: 100%;
+        padding: 14px;
+        font-size: 0.9rem;
+        font-weight: 600;
+        font-family: inherit;
+        background: #111;
+        color: #fff;
+        border: none;
+        border-radius: 10px;
+        cursor: pointer;
+        transition: background 0.15s;
+        letter-spacing: -0.01em;
+      }
+      .waitlist-form button:hover { background: #333; }
+      .waitlist-form button:disabled {
+        background: #999;
+        cursor: not-allowed;
+      }
+      .form-note {
+        font-size: 0.73rem;
+        color: #bbb;
+        margin-top: 10px;
+      }
+      .form-msg {
+        font-size: 0.82rem;
+        margin-top: 12px;
+        padding: 10px;
+        border-radius: 8px;
+        display: none;
+      }
+      .form-msg.success {
+        display: block;
+        background: #ecf5ee;
+        color: #2d8a42;
+      }
+      .form-msg.error {
+        display: block;
+        background: #fef2f2;
+        color: #b91c1c;
+      }
 
+      /* Footer */
       .footer {
         max-width: 720px;
         margin: 56px auto 64px;
@@ -198,92 +306,177 @@
       .footer a {
         color: #999;
         text-decoration: none;
-        margin: 0 10px;
         transition: color 0.15s;
       }
       .footer a:hover { color: #111; }
-      .footer .sep { margin: 0 4px; color: #ddd; }
+      .footer .sep { margin: 0 8px; color: #ddd; }
 
       @media (max-width: 640px) {
         .hero { padding-top: 48px; }
         .hero h1 { font-size: 2rem; }
-        .props { grid-template-columns: 1fr; gap: 0; }
+        .comparison { grid-template-columns: 1fr; }
         .steps { grid-template-columns: 1fr; }
+        .waitlist-box { padding: 28px 20px; }
       }
     </style>
   </head>
   <body>
 
     <div class="hero">
-      <h1>Search by meaning,<br>not just keywords</h1>
-      <p class="subtitle">Open-source semantic search that runs entirely in the browser.<br>No server. No API keys. No monthly bill.</p>
+      <h1>Your readers can't find<br>your best writing</h1>
+      <p class="subtitle">Substack search only matches titles. Sift searches your entire archive by meaning.</p>
       <div class="cta-row">
-        <a href="/acx" class="cta-primary">See it live on 1,000+ posts</a>
-        <a href="https://github.com/romanI04/sift" class="cta-secondary">GitHub</a>
+        <a href="/acx" class="cta-primary">See it live on 1,000+ posts &rarr;</a>
       </div>
     </div>
 
-    <div class="props">
-      <div class="prop">
-        <div class="prop-icon">~</div>
-        <h3>Runs in the browser</h3>
-        <p>ML model loads once, then every search is instant. No server calls, no latency, no cost per query.</p>
+    <!-- The problem: side-by-side comparison -->
+    <div class="comparison-section">
+      <div class="section-title">Same query. Different results.</div>
+      <div class="hero-query"><span class="q-icon">Q</span> that essay about how medications might not work the way we think</div>
+      <div class="comparison">
+        <div class="col col-left">
+          <div class="col-head">
+            <span class="col-name">Substack Search</span>
+          </div>
+          <div class="col-body">
+            <div class="hit">
+              <div class="hit-title">All Medications Are Insignificant In The Eyes Of God And...</div>
+              <div class="hit-snippet">My claim isn't that the concept of statistical significance is meaningless. It's that its particular...</div>
+            </div>
+            <div class="hit">
+              <div class="hit-title">Drug Users Use A Lot Of Drugs</div>
+              <div class="hit-snippet">Someone on the subreddit posted a discussion of this graph, showing the distribution of alcohol...</div>
+            </div>
+            <div class="hit">
+              <div class="hit-title">The Government Is Making Telemedicine Hard And Inconvenient</div>
+              <div class="hit-snippet">In most states, it's illegal to prescribe controlled substances via telemedicine unless you've had...</div>
+            </div>
+          </div>
+        </div>
+        <div class="col col-right">
+          <div class="col-head">
+            <span class="col-name">Sift</span>
+          </div>
+          <div class="col-body">
+            <div class="hit">
+              <div class="hit-title">Contra Hanson On Medical Effectiveness</div>
+              <div class="hit-snippet">We have strong direct evidence that medicine works, both in the form of randomized controlled trials...</div>
+            </div>
+            <div class="hit">
+              <div class="hit-title">Pascalian Medicine</div>
+              <div class="hit-snippet">If it became generally accepted to prescribe lots of pills that probably didn't work, and patients k...</div>
+            </div>
+            <div class="hit">
+              <div class="hit-title">Highlights From The Comments On Health Care</div>
+              <div class="hit-snippet">Some outcomes are relatively easy to measure and correlate... my point is that the relationship betwe...</div>
+            </div>
+          </div>
+        </div>
       </div>
-      <div class="prop">
-        <div class="prop-icon">/</div>
-        <h3>One static file</h3>
-        <p>Your content becomes a single .db file. Host it anywhere — Netlify, Vercel, GitHub Pages, S3.</p>
-      </div>
-      <div class="prop">
-        <div class="prop-icon">*</div>
-        <h3>Understands questions</h3>
-        <p>Ask "how do I handle errors" and find the right page — even if it never mentions the word "error."</p>
+      <div class="verdict-bar">
+        <div class="verdict-inner">
+          <div class="verdict-dot"></div>
+          One searches titles. The other searches content.
+        </div>
       </div>
     </div>
 
     <div class="divider"><hr></div>
 
+    <!-- How it works -->
     <div class="how-section">
-      <div class="section-title">Add to any site in 30 seconds</div>
+      <div class="section-title">How it works</div>
       <div class="steps">
         <div class="step">
           <div class="step-num">01</div>
-          <h3>Index your content</h3>
-          <p><code>pip install sift-search</code> then <code>sift index ./content</code>. Reads your pages, outputs one file.</p>
+          <h3>Share your newsletter URL</h3>
+          <p>Tell us where your archive lives. Substack, Ghost, Beehiiv, Buttondown — any platform.</p>
         </div>
         <div class="step">
           <div class="step-num">02</div>
-          <h3>Drop in one tag</h3>
-          <p>Add <code>&lt;sift-search&gt;</code> to your HTML. 28KB gzipped. Works with any framework or plain HTML.</p>
+          <h3>We index your archive</h3>
+          <p>We read every post and build a search index that understands meaning, not just keywords.</p>
         </div>
         <div class="step">
           <div class="step-num">03</div>
-          <h3>Deploy</h3>
-          <p>Push to your host. Everything runs client-side. Zero backend, zero ongoing cost.</p>
+          <h3>Your readers get a search page</h3>
+          <p>A dedicated page where readers can search your entire archive. Link to it from your newsletter.</p>
         </div>
       </div>
     </div>
 
-    <div class="install-section">
-      <div class="install-box">
-        <span class="comment"># index your content</span><br>
-        <span class="cmd">pip install sift-search</span><br>
-        <span class="cmd">sift index ./content -o public/sift-index.db</span><br>
-        <br>
-        <span class="comment"># add to your HTML</span><br>
-        <span class="cmd">&lt;sift-search db="/sift-index.db"&gt;&lt;/sift-search&gt;</span>
+    <div class="divider"><hr></div>
+
+    <!-- Waitlist form -->
+    <div class="waitlist-section">
+      <div class="waitlist-box">
+        <h2>Get your search page</h2>
+        <p class="wl-sub">We'll index your archive and email you when your search page is ready.</p>
+        <form class="waitlist-form" id="waitlistForm">
+          <input type="url" name="newsletter_url" placeholder="Your newsletter URL (e.g. yourname.substack.com)" required />
+          <input type="email" name="email" placeholder="Your email" required />
+          <button type="submit">Get my search page</button>
+        </form>
+        <p class="form-note">Free while in beta. No credit card needed.</p>
+        <div class="form-msg" id="formMsg"></div>
       </div>
     </div>
 
     <div class="footer">
-      <a href="https://github.com/romanI04/sift">GitHub</a>
+      Built with <a href="https://github.com/romanI04/sift">Sift</a> (open source)
       <span class="sep">/</span>
-      <a href="https://pypi.org/project/sift-search/">PyPI</a>
-      <span class="sep">/</span>
-      <a href="https://www.npmjs.com/package/sift-search">npm</a>
-      <span class="sep">/</span>
-      <a href="https://github.com/romanI04/sift/blob/master/docs/guide.md">Docs</a>
+      Search runs in the browser. No data leaves your device.
     </div>
 
+    <script>
+      const WAITLIST_API = "https://sift-waitlist.romaniv0411.workers.dev";
+
+      document.getElementById("waitlistForm").addEventListener("submit", async (e) => {
+        e.preventDefault();
+        const form = e.target;
+        const btn = form.querySelector("button");
+        const msg = document.getElementById("formMsg");
+        const email = form.email.value.trim();
+        let url = form.newsletter_url.value.trim();
+
+        // Normalize URL: add https:// if missing
+        if (url && !url.startsWith("http://") && !url.startsWith("https://")) {
+          url = "https://" + url;
+        }
+
+        btn.disabled = true;
+        btn.textContent = "Submitting...";
+        msg.className = "form-msg";
+        msg.style.display = "none";
+
+        try {
+          const resp = await fetch(WAITLIST_API, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ email, newsletter_url: url }),
+          });
+          const data = await resp.json();
+
+          if (resp.ok) {
+            msg.textContent = data.message || "You're on the list!";
+            msg.className = "form-msg success";
+            msg.style.display = "block";
+            form.reset();
+          } else {
+            msg.textContent = data.error || "Something went wrong. Try again.";
+            msg.className = "form-msg error";
+            msg.style.display = "block";
+          }
+        } catch {
+          msg.textContent = "Network error. Please try again.";
+          msg.className = "form-msg error";
+          msg.style.display = "block";
+        }
+
+        btn.disabled = false;
+        btn.textContent = "Get my search page";
+      });
+    </script>
   </body>
 </html>
