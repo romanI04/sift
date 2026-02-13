@@ -1,6 +1,6 @@
 {
   "name": "sift-search",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "description": "Semantic search for static sites. Drop-in web component.",
   "type": "module",
   "main": "dist/sift-search.js",
