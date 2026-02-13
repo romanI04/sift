@@ -1,0 +1,656 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Search Astral Codex Ten — Powered by Sift</title>
+    <meta name="description" content="Semantic search across 1,000+ Astral Codex Ten posts. Find that ACX essay you're thinking of — by concept, not just keywords." />
+    <meta property="og:title" content="Search 1,000+ Astral Codex Ten posts by meaning" />
+    <meta property="og:description" content="Substack search matches titles. This searches by concept. Try it." />
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+      * { box-sizing: border-box; margin: 0; padding: 0; }
+      body {
+        font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+        background: #fafaf8;
+        color: #1a1a1a;
+        min-height: 100vh;
+        -webkit-font-smoothing: antialiased;
+      }
+
+      /* Hero comparison */
+      .hero {
+        max-width: 800px;
+        margin: 0 auto;
+        padding: 48px 24px 0;
+        text-align: center;
+      }
+      .hero h1 {
+        font-size: 2.2rem;
+        font-weight: 700;
+        letter-spacing: -0.04em;
+        line-height: 1.15;
+        color: #111;
+      }
+      .hero .subtitle {
+        font-size: 1rem;
+        color: #999;
+        margin-top: 10px;
+        line-height: 1.5;
+      }
+      .hero-query {
+        max-width: 640px;
+        margin: 28px auto 0;
+        padding: 16px 20px;
+        background: #fff;
+        border: 2px solid #e0ddd6;
+        border-radius: 12px;
+        font-size: 1rem;
+        color: #1a1a1a;
+        text-align: left;
+      }
+      .hero-query .q-icon { color: #ccc; margin-right: 8px; }
+
+      .comparison {
+        max-width: 800px;
+        margin: 20px auto 0;
+        padding: 0 24px;
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 14px;
+      }
+      .col {
+        background: #fff;
+        border-radius: 14px;
+        border: 1px solid #eae8e3;
+        overflow: hidden;
+      }
+      .col-head {
+        padding: 12px 18px;
+        border-bottom: 1px solid #f2f0eb;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+      }
+      .col-name {
+        font-weight: 600;
+        font-size: 0.8rem;
+        letter-spacing: -0.01em;
+      }
+      .col-left .col-name { color: #999; }
+      .col-right .col-name { color: #111; }
+      .col-tag {
+        font-size: 0.6rem;
+        font-weight: 500;
+        padding: 3px 9px;
+        border-radius: 100px;
+        letter-spacing: 0.03em;
+        text-transform: uppercase;
+      }
+      .tag-kw { background: #f5f0ee; color: #b8574b; }
+      .tag-sem { background: #ecf5ee; color: #2d8a42; }
+      .col-body { padding: 6px 18px 18px; }
+      .col-empty {
+        color: #d0ccc4;
+        font-size: 0.82rem;
+        text-align: center;
+        padding: 36px 16px;
+      }
+
+      .hit {
+        display: block;
+        text-decoration: none;
+        color: inherit;
+        padding: 12px 0;
+        border-bottom: 1px solid #f5f3ef;
+      }
+      .hit:last-child { border-bottom: none; }
+      .hit-title {
+        font-weight: 500;
+        font-size: 0.85rem;
+        letter-spacing: -0.01em;
+      }
+      .col-left .hit-title { color: #999; }
+      .col-right .hit-title { color: #111; }
+      .hit-snippet {
+        font-size: 0.78rem;
+        color: #888;
+        margin-top: 4px;
+        line-height: 1.5;
+      }
+      .hit-score {
+        display: inline-block;
+        font-size: 0.6rem;
+        font-weight: 500;
+        padding: 2px 7px;
+        border-radius: 100px;
+        background: #ecf5ee;
+        color: #2d8a42;
+        margin-left: 6px;
+        vertical-align: middle;
+      }
+
+      .verdict-bar {
+        max-width: 800px;
+        margin: 12px auto 0;
+        padding: 0 24px;
+      }
+      .verdict-inner {
+        background: #111;
+        color: #fff;
+        padding: 12px 18px;
+        border-radius: 10px;
+        font-size: 0.8rem;
+        display: flex;
+        align-items: center;
+        gap: 9px;
+      }
+      .verdict-dot {
+        width: 6px; height: 6px;
+        border-radius: 50%;
+        background: #4ade80;
+        flex-shrink: 0;
+      }
+
+      /* Divider */
+      .divider {
+        max-width: 800px;
+        margin: 48px auto 0;
+        padding: 0 24px;
+      }
+      .divider hr { border: none; border-top: 1px solid #eae8e3; }
+
+      /* Try it yourself */
+      .try-section {
+        max-width: 640px;
+        margin: 40px auto 0;
+        padding: 0 24px;
+      }
+      .try-title {
+        font-size: 0.72rem;
+        font-weight: 500;
+        text-transform: uppercase;
+        letter-spacing: 0.08em;
+        color: #bbb;
+        text-align: center;
+        margin-bottom: 16px;
+      }
+      .search-input {
+        width: 100%;
+        padding: 16px 20px;
+        font-size: 1rem;
+        font-family: inherit;
+        border: 2px solid #e0ddd6;
+        border-radius: 12px;
+        outline: none;
+        background: #fff;
+        color: #1a1a1a;
+        transition: border-color 0.15s;
+      }
+      .search-input:focus { border-color: #111; }
+      .search-input::placeholder { color: #ccc; }
+      .search-meta {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        margin-top: 10px;
+      }
+      .chips { display: flex; flex-wrap: wrap; gap: 6px; }
+      .chip {
+        background: transparent;
+        border: 1px solid #ddd9d0;
+        border-radius: 100px;
+        padding: 5px 14px;
+        font-size: 0.75rem;
+        font-family: inherit;
+        color: #777;
+        cursor: pointer;
+        transition: all 0.15s;
+      }
+      .chip:hover { background: #111; color: #fff; border-color: #111; }
+      .status {
+        font-size: 0.72rem;
+        color: #bbb;
+        white-space: nowrap;
+        margin-left: 12px;
+      }
+
+      .progress-wrap {
+        max-width: 640px;
+        margin: 12px auto 0;
+        padding: 0 24px;
+        display: none;
+      }
+      .progress-wrap.show { display: block; }
+      .progress-bar {
+        width: 100%;
+        height: 3px;
+        background: #eae8e3;
+        border-radius: 2px;
+        overflow: hidden;
+      }
+      .progress-fill {
+        height: 100%;
+        background: #111;
+        border-radius: 2px;
+        width: 0%;
+        transition: width 0.3s;
+      }
+      .progress-text {
+        font-size: 0.7rem;
+        color: #bbb;
+        margin-top: 5px;
+        text-align: center;
+      }
+
+      .results-area {
+        max-width: 640px;
+        margin: 20px auto 0;
+        padding: 0 24px;
+      }
+      .mode-label {
+        font-size: 0.68rem;
+        font-weight: 500;
+        text-transform: uppercase;
+        letter-spacing: 0.06em;
+        color: #bbb;
+        margin-bottom: 4px;
+      }
+      .mode-label.semantic { color: #2d8a42; }
+      .mode-label.keyword { color: #b8574b; }
+
+      .result {
+        display: block;
+        text-decoration: none;
+        color: inherit;
+        padding: 14px 18px;
+        margin-bottom: 8px;
+        background: #fff;
+        border: 1px solid #eae8e3;
+        border-radius: 12px;
+        transition: border-color 0.15s, box-shadow 0.15s;
+      }
+      .result:hover {
+        border-color: #ccc;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+      }
+      .result-title {
+        font-weight: 600;
+        font-size: 0.88rem;
+        letter-spacing: -0.01em;
+        color: #111;
+      }
+      .result-snippet {
+        font-size: 0.78rem;
+        color: #888;
+        margin-top: 5px;
+        line-height: 1.55;
+      }
+      .score-tag {
+        display: inline-block;
+        font-size: 0.6rem;
+        font-weight: 500;
+        padding: 2px 7px;
+        border-radius: 100px;
+        background: #ecf5ee;
+        color: #2d8a42;
+        margin-left: 6px;
+        vertical-align: middle;
+      }
+
+      .empty-state {
+        text-align: center;
+        padding: 40px 20px;
+        color: #ccc;
+        font-size: 0.85rem;
+      }
+
+      .footer {
+        max-width: 800px;
+        margin: 48px auto 56px;
+        padding: 0 24px;
+        text-align: center;
+        font-size: 0.72rem;
+        color: #ccc;
+      }
+      .footer a { color: #999; text-decoration: none; }
+      .footer a:hover { color: #111; }
+      .footer .sep { margin: 0 8px; color: #ddd; }
+
+      @media (max-width: 640px) {
+        .comparison { grid-template-columns: 1fr; }
+        .hero { padding-top: 32px; }
+        .hero h1 { font-size: 1.6rem; }
+      }
+    </style>
+  </head>
+  <body>
+
+    <!-- HERO: pre-baked comparison, zero download needed -->
+    <div class="hero">
+      <h1>Substack search matches titles.<br>This searches by meaning.</h1>
+      <p class="subtitle">1,078 posts by <a href="https://astralcodexten.substack.com" target="_blank" style="color:#666;border-bottom:1px solid #ddd;text-decoration:none">Scott Alexander</a>, indexed and searchable by concept.</p>
+      <div class="hero-query"><span class="q-icon">Q</span> that essay about how medications might not work the way we think</div>
+    </div>
+
+    <div class="comparison">
+      <div class="col col-left">
+        <div class="col-head">
+          <span class="col-name">Substack Search</span>
+          <span class="col-tag tag-kw">Title match</span>
+        </div>
+        <div class="col-body">
+          <div class="hit">
+            <div class="hit-title">All Medications Are Insignificant In The Eyes Of God And...</div>
+            <div class="hit-snippet">Title contains "medications" — but the post is about something else entirely.</div>
+          </div>
+          <div class="hit">
+            <div class="hit-title">Drug Users Use A Lot Of Drugs</div>
+            <div class="hit-snippet">Matched "drugs" — not remotely what you were looking for.</div>
+          </div>
+          <div class="hit">
+            <div class="hit-title">The Government Is Making Telemedicine Hard And Inconvenient</div>
+            <div class="hit-snippet">Matched "medicine" — about regulation, not effectiveness.</div>
+          </div>
+        </div>
+      </div>
+      <div class="col col-right">
+        <div class="col-head">
+          <span class="col-name">Sift</span>
+          <span class="col-tag tag-sem">Semantic</span>
+        </div>
+        <div class="col-body">
+          <a href="https://astralcodexten.substack.com/p/contra-hanson-on-medical-effectiveness" class="hit" target="_blank" rel="noopener">
+            <div class="hit-title">Contra Hanson On Medical Effectiveness</div>
+            <div class="hit-snippet">We have strong direct evidence that medicine works, both in the form of randomized controlled trials...</div>
+          </a>
+          <a href="https://astralcodexten.substack.com/p/pascalian-medicine" class="hit" target="_blank" rel="noopener">
+            <div class="hit-title">Pascalian Medicine</div>
+            <div class="hit-snippet">If it became generally accepted to prescribe lots of pills that probably didn't work, and patients k...</div>
+          </a>
+          <a href="https://astralcodexten.substack.com/p/highlights-from-the-comments-on-hanson" class="hit" target="_blank" rel="noopener">
+            <div class="hit-title">Highlights From The Comments On Health Care</div>
+            <div class="hit-snippet">Some outcomes are relatively easy to measure and correlate... my point is that the relationship betwe...</div>
+          </a>
+          <a href="https://astralcodexten.substack.com/p/on-priesthoods" class="hit" target="_blank" rel="noopener">
+            <div class="hit-title">On Priesthoods</div>
+            <div class="hit-snippet">Someone may try to make a medical claim on Twitter, and be dismissed because they lack credentials...</div>
+          </a>
+        </div>
+      </div>
+    </div>
+
+    <div class="verdict-bar">
+      <div class="verdict-inner">
+        <div class="verdict-dot"></div>
+        Keyword search matched words in titles. Sift understood the question.
+      </div>
+    </div>
+
+    <div class="divider"><hr></div>
+
+    <!-- LIVE SEARCH: loads in background while user reads hero -->
+    <div class="try-section">
+      <div class="try-title">Try it yourself — search 1,078 posts</div>
+      <input type="text" class="search-input" id="searchBox" placeholder="e.g. why do smart people believe dumb things" disabled />
+      <div class="search-meta">
+        <div class="chips" id="suggestions">
+          <span class="chip" data-q="why do smart people believe dumb things">smart people, dumb beliefs</span>
+          <span class="chip" data-q="the one about prediction markets being surprisingly accurate">prediction markets</span>
+          <span class="chip" data-q="why predictions about AI are usually wrong">AI predictions</span>
+          <span class="chip" data-q="how does the placebo effect actually work">placebo effect</span>
+          <span class="chip" data-q="what makes a city good or bad to live in">good cities</span>
+        </div>
+        <span class="status" id="status">Loading...</span>
+      </div>
+    </div>
+
+    <div class="progress-wrap" id="progressWrap">
+      <div class="progress-bar"><div class="progress-fill" id="progressFill"></div></div>
+      <div class="progress-text" id="progressText">Downloading index...</div>
+    </div>
+
+    <div class="results-area">
+      <div class="mode-label" id="modeLabel"></div>
+      <div id="results">
+        <div class="empty-state">Results will appear here</div>
+      </div>
+    </div>
+
+    <div class="footer">
+      Powered by <a href="https://siftsearch.netlify.app">Sift</a> <span class="sep">/</span>
+      <a href="https://github.com/romanI04/sift">GitHub</a> <span class="sep">/</span>
+      All search runs in your browser. No data leaves your device.
+    </div>
+
+    <script type="module">
+      const SQLJS_FALLBACK = "https://cdn.jsdelivr.net/npm/sql.js@1.12.0/dist";
+
+      const searchBox = document.getElementById("searchBox");
+      const statusEl = document.getElementById("status");
+      const resultsEl = document.getElementById("results");
+      const modeLabelEl = document.getElementById("modeLabel");
+      const progressWrap = document.getElementById("progressWrap");
+      const progressFill = document.getElementById("progressFill");
+      const progressTextEl = document.getElementById("progressText");
+
+      let db, embedWorker, allVectors, modelReady = false;
+      let debounceTimer, lastQuery = "";
+
+      function setProgress(pct, text) {
+        progressWrap.classList.add("show");
+        progressFill.style.width = pct + "%";
+        progressTextEl.textContent = text;
+      }
+
+      async function loadSqlJs() {
+        if (window.initSqlJs) return window.initSqlJs;
+        return new Promise((resolve, reject) => {
+          const s = document.createElement("script");
+          s.src = `${SQLJS_FALLBACK}/sql-wasm.js`;
+          s.onload = () => resolve(window.initSqlJs);
+          s.onerror = () => reject(new Error("Failed to load sql.js"));
+          document.head.appendChild(s);
+        });
+      }
+
+      async function fetchWithProgress(url) {
+        const resp = await fetch(url);
+        const total = parseInt(resp.headers.get("content-length") || "0", 10);
+        const reader = resp.body.getReader();
+        const chunks = [];
+        let loaded = 0;
+        while (true) {
+          const { done, value } = await reader.read();
+          if (done) break;
+          chunks.push(value);
+          loaded += value.length;
+          if (total) {
+            const mb = (loaded / 1048576).toFixed(1);
+            const totalMb = (total / 1048576).toFixed(0);
+            setProgress(Math.round((loaded / total) * 60), `Downloading index... ${mb} / ${totalMb} MB`);
+          }
+        }
+        const result = new Uint8Array(loaded);
+        let pos = 0;
+        for (const c of chunks) { result.set(c, pos); pos += c.length; }
+        return result.buffer;
+      }
+
+      function makeEmbedWorker() {
+        const code = `
+          let extractor = null, vecs = null;
+          self.onmessage = async (e) => {
+            if (e.data.type === "init") {
+              const { pipeline } = await import("https://cdn.jsdelivr.net/npm/@huggingface/transformers@3");
+              extractor = await pipeline("feature-extraction", "Xenova/bge-small-en-v1.5", { dtype: "q8" });
+              self.postMessage({ type: "ready" });
+            } else if (e.data.type === "cache") {
+              vecs = e.data.vectors.map(v => ({ id: v.chunkId, vec: new Float32Array(v.vector) }));
+              self.postMessage({ type: "cached" });
+            } else if (e.data.type === "search") {
+              const out = await extractor(e.data.query, { pooling: "mean", normalize: true });
+              const qv = out.tolist()[0];
+              const scores = vecs.map(v => {
+                let s = 0; for (let i = 0; i < qv.length; i++) s += qv[i] * v.vec[i];
+                return { chunkId: v.id, score: s };
+              });
+              scores.sort((a, b) => b.score - a.score);
+              self.postMessage({ type: "results", results: scores.slice(0, 25) });
+            }
+          };
+        `;
+        return new Worker(URL.createObjectURL(new Blob([code], { type: "text/javascript" })), { type: "module" });
+      }
+
+      function esc(s) { const d = document.createElement("div"); d.textContent = s; return d.innerHTML; }
+      function snippet(t, max = 160) { return t.length > max ? t.slice(0, max) + "..." : t; }
+
+      function queryDb(sql, params = []) {
+        const stmt = db.prepare(sql);
+        if (params.length) stmt.bind(params);
+        const rows = [];
+        while (stmt.step()) rows.push(stmt.getAsObject());
+        stmt.free();
+        return rows;
+      }
+
+      function dedupeByTitle(items, limit = 5) {
+        const seen = new Set();
+        const out = [];
+        for (const r of items) {
+          if (!seen.has(r.title)) {
+            seen.add(r.title);
+            out.push(r);
+            if (out.length >= limit) break;
+          }
+        }
+        return out;
+      }
+
+      function renderResults(items, mode) {
+        modeLabelEl.textContent = mode === "semantic"
+          ? `Semantic results`
+          : `Keyword results`;
+        modeLabelEl.className = `mode-label ${mode}`;
+        if (!items.length) {
+          resultsEl.innerHTML = `<div class="empty-state">No results found</div>`;
+          return;
+        }
+        resultsEl.innerHTML = items.map(r => `
+          <a href="${esc(r.url)}" class="result" target="_blank" rel="noopener">
+            <div class="result-title">${esc(r.title)}</div>
+            <div class="result-snippet">${esc(snippet(r.content))}</div>
+          </a>
+        `).join("");
+      }
+
+      function lexicalSearch(q) {
+        const words = q.split(/\s+/).filter(w => w.length > 2);
+        if (!words.length) return [];
+        const fts = words.map(w => `"${w}"`).join(" OR ");
+        const rows = queryDb("SELECT rowid FROM chunks_fts WHERE chunks_fts MATCH ? LIMIT 20", [fts]);
+        if (!rows.length) return [];
+        const ids = rows.map(r => r.rowid);
+        const ph = ids.map(() => "?").join(",");
+        const results = queryDb(`SELECT id, url, title, content FROM chunks WHERE id IN (${ph})`, ids);
+        return dedupeByTitle(results);
+      }
+
+      function doSearch(q) {
+        lastQuery = q;
+        try {
+          const kw = lexicalSearch(q);
+          renderResults(kw, "keyword");
+        } catch {
+          resultsEl.innerHTML = `<div class="empty-state">No keyword matches</div>`;
+        }
+        if (modelReady) {
+          modeLabelEl.textContent = "Searching by meaning...";
+          modeLabelEl.className = "mode-label semantic";
+          embedWorker.postMessage({ type: "search", query: q });
+        }
+      }
+
+      // Start loading immediately (while user reads hero)
+      (async () => {
+        setProgress(0, "Downloading 1,078 posts...");
+        const [initSqlJs, dbBuf] = await Promise.all([
+          loadSqlJs(),
+          fetchWithProgress("/acx-index.db")
+        ]);
+
+        setProgress(62, "Parsing index...");
+        const SQL = await initSqlJs({ locateFile: f => `${SQLJS_FALLBACK}/${f}` });
+        db = new SQL.Database(new Uint8Array(dbBuf));
+
+        setProgress(72, "Loading vectors...");
+        const vecRows = queryDb("SELECT chunk_id, vector FROM embeddings");
+        // Vectors stored as float16 — convert to float32 for computation
+        allVectors = vecRows.map(r => {
+          const u8 = new Uint8Array(r.vector);
+          const f16 = new Uint16Array(u8.buffer);
+          const f32 = new Float32Array(f16.length);
+          for (let i = 0; i < f16.length; i++) {
+            const h = f16[i];
+            const s = (h >>> 15) & 1, e = (h >>> 10) & 0x1f, m = h & 0x3ff;
+            if (e === 0) f32[i] = (s ? -1 : 1) * Math.pow(2, -14) * (m / 1024);
+            else if (e === 31) f32[i] = m ? NaN : (s ? -Infinity : Infinity);
+            else f32[i] = (s ? -1 : 1) * Math.pow(2, e - 15) * (1 + m / 1024);
+          }
+          return { chunkId: r.chunk_id, vector: f32 };
+        });
+
+        setProgress(82, "Loading ML model...");
+        progressWrap.classList.remove("show");
+
+        embedWorker = makeEmbedWorker();
+        embedWorker.onmessage = (e) => {
+          if (e.data.type === "ready") {
+            modelReady = true;
+            statusEl.textContent = "Ready";
+            if (lastQuery) doSearch(lastQuery);
+          } else if (e.data.type === "results") {
+            const ids = e.data.results.map(r => r.chunkId);
+            if (!ids.length) { resultsEl.innerHTML = `<div class="empty-state">No results</div>`; return; }
+            const ph = ids.map(() => "?").join(",");
+            const chunks = queryDb(`SELECT id, url, title, content FROM chunks WHERE id IN (${ph})`, ids);
+            const scoreMap = new Map(e.data.results.map(r => [r.chunkId, r.score]));
+            const sorted = chunks.map(c => ({ ...c, score: scoreMap.get(c.id) || 0 })).sort((a, b) => b.score - a.score);
+            renderResults(dedupeByTitle(sorted), "semantic");
+          }
+        };
+
+        embedWorker.postMessage({ type: "cache", vectors: allVectors.map(v => ({ chunkId: v.chunkId, vector: Array.from(v.vector) })) });
+        embedWorker.postMessage({ type: "init" });
+
+        statusEl.textContent = "Loading ML model...";
+        searchBox.disabled = false;
+        searchBox.placeholder = "Search 1,078 posts by meaning...";
+
+        searchBox.addEventListener("input", () => {
+          clearTimeout(debounceTimer);
+          debounceTimer = setTimeout(() => {
+            const q = searchBox.value.trim();
+            if (q.length > 2) {
+              doSearch(q);
+            } else {
+              resultsEl.innerHTML = `<div class="empty-state">Results will appear here</div>`;
+              modeLabelEl.textContent = "";
+            }
+          }, 250);
+        });
+
+        document.getElementById("suggestions").addEventListener("click", (e) => {
+          const chip = e.target.closest(".chip");
+          if (chip && chip.dataset.q) {
+            searchBox.value = chip.dataset.q;
+            doSearch(chip.dataset.q);
+          }
+        });
+      })();
+    </script>
+  </body>
+</html>

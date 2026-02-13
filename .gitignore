@@ -7,6 +7,7 @@ build/
 .venv/
 *.db
 !demo/public/sift-index.db
+!demo/acx-index.db
 
 # Node
 node_modules/
@@ -25,3 +26,6 @@ Thumbs.db
 # Environment
 .env
 .env.local
+
+# Local Netlify folder
+.netlify
