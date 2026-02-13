@@ -16,7 +16,14 @@ Point sift at your markdown docs:
 sift index ./docs -o sift-index.db
 ```
 
-This reads your `.md` files, computes embeddings, and outputs a single `sift-index.db` file.
+This reads your `.md` files, computes embeddings with bge-small-en-v1.5 (ONNX, quantized), and outputs a single `sift-index.db` file.
+
+For large sites, you can use OpenAI embeddings instead (faster, requires API key):
+
+```bash
+pip install sift-search[openai]
+OPENAI_API_KEY=sk-... sift index ./docs -o sift-index.db --provider openai
+```
 
 Verify it worked:
 
@@ -40,9 +47,25 @@ That's it. Your visitors now have semantic search.
 
 ## How it works
 
-- **Build time:** The CLI reads your markdown, splits it into chunks, and computes embeddings using all-MiniLM-L6-v2 (a small, fast language model). Everything is stored in a SQLite database.
+- **Build time:** The CLI reads your markdown, splits it into chunks, and computes embeddings using bge-small-en-v1.5 (a small, fast embedding model). Everything is stored in a SQLite database.
 - **Runtime:** The browser loads the database via HTTP range requests when available, or downloads the full index as fallback. Keyword search works instantly via FTS5. Once the ML model loads in the visitor's browser, results upgrade to semantic.
 - **No server:** The index is a static file. The model runs client-side. Works on Netlify, Vercel, GitHub Pages, Cloudflare Pages, or any static host.
+
+## Local vs cloud mode
+
+**Local mode** (default) — the embedding model (34MB, quantized ONNX) loads in the visitor's browser via a WebWorker. Zero API calls. Best for privacy-sensitive sites, offline docs, or when you want zero dependencies.
+
+**Cloud mode** — set the `api` attribute to your embedding endpoint. Queries are embedded server-side, so there's no model download and semantic search is instant. Cosine similarity still runs client-side against your static index.
+
+```html
+<!-- local mode (default) -->
+<sift-search db="/sift-index.db"></sift-search>
+
+<!-- cloud mode -->
+<sift-search db="/sift-index.db" api="https://your-endpoint.com/embed"></sift-search>
+```
+
+The cloud endpoint receives a POST with `{"query": "search text"}` and should return `{"vector": [0.1, 0.2, ...]}` (384-dimensional float array).
 
 ## Requirements
 
@@ -82,6 +105,7 @@ Add to `netlify.toml` at your repo root:
 |-----------|---------|-------------|
 | `db` | `/sift-index.db` | Path to your index file |
 | `theme` | `light` | `light` or `dark` |
+| `api` | (none) | Embedding API endpoint for cloud mode |
 
 ## Updating the index
 
@@ -101,4 +125,4 @@ Run `sift doctor sift-index.db` to check your index. It validates:
 - SQLite structure and required tables
 - Embedding dimensions (384) and L2 normalization
 - FTS5 full-text index population
-- Model metadata
+- Model metadata and consistency
