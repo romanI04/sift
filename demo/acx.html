@@ -924,6 +924,19 @@
         searchBox.disabled = false;
         searchBox.placeholder = "Search 1,078 posts by meaning...";
 
+        // Deep link: ?related=Post+Title auto-shows related posts
+        const params = new URLSearchParams(window.location.search);
+        const relatedParam = params.get("related");
+        if (relatedParam) {
+          const title = decodeURIComponent(relatedParam);
+          const match = queryDb("SELECT id, title FROM chunks WHERE title LIKE ? LIMIT 1", [`%${title}%`]);
+          if (match.length) {
+            showRelated(match[0].id, match[0].title);
+            // Scroll past hero to the related section
+            setTimeout(() => relatedSectionEl.scrollIntoView({ behavior: "smooth", block: "start" }), 300);
+          }
+        }
+
         searchBox.addEventListener("input", () => {
           clearTimeout(debounceTimer);
           debounceTimer = setTimeout(() => {
