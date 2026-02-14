@@ -924,16 +924,69 @@
         searchBox.disabled = false;
         searchBox.placeholder = "Search 1,078 posts by meaning...";
 
-        // Deep link: ?related=Post+Title auto-shows related posts
+        // Deep linking: ?related=Title (explicit) or ?next (universal link, reads referrer)
         const params = new URLSearchParams(window.location.search);
         const relatedParam = params.get("related");
-        if (relatedParam) {
-          const title = decodeURIComponent(relatedParam);
+        const isNextMode = params.has("next");
+
+        function autoShowRelated(title) {
           const match = queryDb("SELECT id, title FROM chunks WHERE title LIKE ? LIMIT 1", [`%${title}%`]);
           if (match.length) {
             showRelated(match[0].id, match[0].title);
-            // Scroll past hero to the related section
             setTimeout(() => relatedSectionEl.scrollIntoView({ behavior: "smooth", block: "start" }), 300);
+            return true;
+          }
+          return false;
+        }
+
+        if (relatedParam) {
+          autoShowRelated(decodeURIComponent(relatedParam));
+        } else if (isNextMode) {
+          // Universal link: infer source post from referrer
+          const ref = document.referrer;
+          let matched = false;
+          if (ref) {
+            // Extract slug from Substack URL: https://xxx.substack.com/p/post-slug-here
+            const slugMatch = ref.match(/\/p\/([a-z0-9-]+)/i);
+            if (slugMatch) {
+              const slug = slugMatch[1].replace(/-/g, " ");
+              const rows = queryDb("SELECT id, title, url FROM chunks LIMIT 2000");
+              // Match by URL containing the slug, or title fuzzy match
+              const byUrl = rows.find(r => r.url && r.url.includes(slugMatch[1]));
+              if (byUrl) {
+                matched = true;
+                showRelated(byUrl.id, byUrl.title);
+                setTimeout(() => relatedSectionEl.scrollIntoView({ behavior: "smooth", block: "start" }), 300);
+              } else {
+                // Fuzzy title match from slug
+                matched = autoShowRelated(slug);
+              }
+            }
+          }
+          if (!matched) {
+            // Fallback: no referrer (email click) or no match — show "start exploring"
+            // Pick a random well-known post to seed the rabbit hole
+            const popular = queryDb("SELECT c.id, c.title FROM chunks c JOIN embeddings e ON c.id = e.chunk_id ORDER BY c.id LIMIT 1");
+            if (popular.length) {
+              relatedSectionEl.style.display = "block";
+              relatedHeaderEl.textContent = "Start exploring the archive";
+              // Show 5 diverse posts using the first post's vector
+              const vec = allVectors.find(v => v.chunkId === popular[0].id);
+              if (vec) {
+                // Use a random offset to get diverse results each time
+                const all = queryDb("SELECT id, url, title, content FROM chunks ORDER BY RANDOM() LIMIT 5");
+                relatedResultsEl.innerHTML = all.map(r => `
+                  <div class="related-card" data-id="${r.id}">
+                    <div class="related-card-body">
+                      <div class="related-card-title">${esc(r.title)}</div>
+                      <div class="related-card-snippet">${esc(snippet(r.content, 120))}</div>
+                    </div>
+                    <a href="${esc(r.url)}" class="related-card-link" target="_blank" rel="noopener" onclick="event.stopPropagation()">Read →</a>
+                  </div>
+                `).join("");
+                setTimeout(() => relatedSectionEl.scrollIntoView({ behavior: "smooth", block: "start" }), 300);
+              }
+            }
           }
         }
 
