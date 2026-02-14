@@ -570,7 +570,9 @@
           let extractor = null, vecs = null;
           self.onmessage = async (e) => {
             if (e.data.type === "init") {
-              const { pipeline } = await import("https://cdn.jsdelivr.net/npm/@huggingface/transformers@3");
+              const { pipeline, env } = await import("https://cdn.jsdelivr.net/npm/@huggingface/transformers@3");
+              env.remoteHost = "https://sift-assets.romaniv0411.workers.dev/models/";
+              env.remotePathTemplate = "{model}/";
               extractor = await pipeline("feature-extraction", "Xenova/bge-small-en-v1.5", { dtype: "q8" });
               self.postMessage({ type: "ready" });
             } else if (e.data.type === "cache") {
@@ -665,7 +667,7 @@
         setProgress(0, "Downloading 1,078 posts...");
         const [initSqlJs, dbBuf] = await Promise.all([
           loadSqlJs(),
-          fetchWithProgress("https://pub-c64719780b704b30b392261860a60113.r2.dev/acx-index.db")
+          fetchWithProgress("https://sift-assets.romaniv0411.workers.dev/acx-index.db")
         ]);
 
         setProgress(62, "Parsing index...");
