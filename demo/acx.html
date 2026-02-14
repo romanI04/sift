@@ -522,7 +522,7 @@
       const progressFill = document.getElementById("progressFill");
       const progressTextEl = document.getElementById("progressText");
 
-      let db, embedWorker, allVectors, modelReady = false;
+      let db, embedWorker, allVectors, modelReady = false, rerankerReady = false;
       let debounceTimer, lastQuery = "";
 
       function setProgress(pct, text) {
@@ -567,7 +567,7 @@
 
       function makeEmbedWorker() {
         const code = `
-          let extractor = null, vecs = null;
+          let extractor = null, reranker = null, vecs = null;
           self.onmessage = async (e) => {
             if (e.data.type === "init") {
               const { pipeline, env } = await import("https://cdn.jsdelivr.net/npm/@huggingface/transformers@3");
@@ -575,6 +575,9 @@
               env.remotePathTemplate = "{model}/";
               extractor = await pipeline("feature-extraction", "Xenova/bge-small-en-v1.5", { dtype: "q8" });
               self.postMessage({ type: "ready" });
+              // Load reranker in background after embedding model is ready
+              reranker = await pipeline("text-classification", "Xenova/ms-marco-TinyBERT-L-2-v2", { dtype: "q8" });
+              self.postMessage({ type: "reranker-ready" });
             } else if (e.data.type === "cache") {
               vecs = e.data.vectors.map(v => ({ id: v.chunkId, vec: new Float32Array(v.vector) }));
               self.postMessage({ type: "cached" });
@@ -587,6 +590,16 @@
               });
               scores.sort((a, b) => b.score - a.score);
               self.postMessage({ type: "results", results: scores.slice(0, 25) });
+            } else if (e.data.type === "rerank") {
+              if (!reranker) { self.postMessage({ type: "reranked", results: e.data.candidates }); return; }
+              const { query, candidates } = e.data;
+              const scored = [];
+              for (const c of candidates) {
+                const out = await reranker(query, { text_pair: c.content.slice(0, 400), top_k: 1 });
+                scored.push({ chunkId: c.chunkId, score: out[0].score });
+              }
+              scored.sort((a, b) => b.score - a.score);
+              self.postMessage({ type: "reranked", results: scored });
             }
           };
         `;
@@ -700,9 +713,25 @@
             modelReady = true;
             statusEl.textContent = "Ready";
             if (lastQuery) doSearch(lastQuery);
+          } else if (e.data.type === "reranker-ready") {
+            rerankerReady = true;
           } else if (e.data.type === "results") {
             const ids = e.data.results.map(r => r.chunkId);
             if (!ids.length) { resultsEl.innerHTML = `<div class="empty-state">No results</div>`; return; }
+            const ph = ids.map(() => "?").join(",");
+            const chunks = queryDb(`SELECT id, url, title, content FROM chunks WHERE id IN (${ph})`, ids);
+            const scoreMap = new Map(e.data.results.map(r => [r.chunkId, r.score]));
+            const sorted = chunks.map(c => ({ ...c, score: scoreMap.get(c.id) || 0 })).sort((a, b) => b.score - a.score);
+            const deduped = dedupeByTitle(sorted);
+            renderResults(deduped, "semantic");
+            // Rerank top results if reranker is loaded
+            if (rerankerReady && lastQuery) {
+              const candidates = deduped.slice(0, 15).map(c => ({ chunkId: c.id, content: c.content }));
+              embedWorker.postMessage({ type: "rerank", query: lastQuery, candidates });
+            }
+          } else if (e.data.type === "reranked") {
+            const ids = e.data.results.map(r => r.chunkId);
+            if (!ids.length) return;
             const ph = ids.map(() => "?").join(",");
             const chunks = queryDb(`SELECT id, url, title, content FROM chunks WHERE id IN (${ph})`, ids);
             const scoreMap = new Map(e.data.results.map(r => [r.chunkId, r.score]));
