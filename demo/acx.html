@@ -268,6 +268,7 @@
         border: 1px solid #eae8e3;
         border-radius: 12px;
         transition: border-color 0.15s, box-shadow 0.15s;
+        cursor: pointer;
       }
       .result:hover {
         border-color: #ccc;
@@ -303,6 +304,75 @@
         color: #ccc;
         font-size: 0.85rem;
       }
+
+      /* Related posts / rabbit hole */
+      .related-section {
+        max-width: 640px;
+        margin: 28px auto 0;
+        padding: 0 24px;
+      }
+      .related-header {
+        font-size: 0.68rem;
+        font-weight: 500;
+        text-transform: uppercase;
+        letter-spacing: 0.06em;
+        color: #bbb;
+        margin-bottom: 8px;
+      }
+      .related-trail {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 4px;
+        margin-bottom: 10px;
+        font-size: 0.72rem;
+        color: #bbb;
+      }
+      .trail-crumb {
+        cursor: pointer;
+        color: #999;
+        text-decoration: underline;
+        text-decoration-color: #ddd;
+      }
+      .trail-crumb:hover { color: #111; }
+      .trail-sep { color: #ddd; }
+      .related-card {
+        display: flex;
+        align-items: flex-start;
+        gap: 12px;
+        padding: 12px 16px;
+        margin-bottom: 6px;
+        background: #fff;
+        border: 1px solid #eae8e3;
+        border-radius: 10px;
+        cursor: pointer;
+        transition: border-color 0.15s, box-shadow 0.15s;
+      }
+      .related-card:hover {
+        border-color: #ccc;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+      }
+      .related-card-body { flex: 1; min-width: 0; }
+      .related-card-title {
+        font-weight: 600;
+        font-size: 0.82rem;
+        color: #111;
+        letter-spacing: -0.01em;
+      }
+      .related-card-snippet {
+        font-size: 0.73rem;
+        color: #999;
+        margin-top: 3px;
+        line-height: 1.5;
+      }
+      .related-card-link {
+        font-size: 0.68rem;
+        color: #bbb;
+        text-decoration: none;
+        white-space: nowrap;
+        flex-shrink: 0;
+        align-self: center;
+      }
+      .related-card-link:hover { color: #111; }
 
       /* Waitlist CTA */
       .waitlist-section {
@@ -489,16 +559,22 @@
       </div>
     </div>
 
+    <div class="related-section" id="relatedSection" style="display:none">
+      <div class="related-header" id="relatedHeader">Related posts</div>
+      <div class="related-trail" id="relatedTrail"></div>
+      <div id="relatedResults"></div>
+    </div>
+
     <!-- Waitlist CTA -->
     <div class="divider"><hr></div>
     <div class="waitlist-section">
       <div class="waitlist-box">
         <h2>Want this for your newsletter?</h2>
-        <p class="wl-sub">We'll index your archive and send you a search page like this one.</p>
+        <p class="wl-sub">Search + related posts for your archive. Help your readers discover your best writing.</p>
         <form class="waitlist-form" id="waitlistForm">
           <input type="url" name="newsletter_url" placeholder="Your newsletter URL (e.g. yourname.substack.com)" required />
           <input type="email" name="email" placeholder="Your email" required />
-          <button type="submit">Get my search page</button>
+          <button type="submit">Get started</button>
         </form>
         <p class="form-note">Free while in beta. No credit card needed.</p>
         <div class="form-msg" id="formMsg"></div>
@@ -609,6 +685,89 @@
       function esc(s) { const d = document.createElement("div"); d.textContent = s; return d.innerHTML; }
       function snippet(t, max = 160) { return t.length > max ? t.slice(0, max) + "..." : t; }
 
+      const relatedSectionEl = document.getElementById("relatedSection");
+      const relatedResultsEl = document.getElementById("relatedResults");
+      const relatedHeaderEl = document.getElementById("relatedHeader");
+      const relatedTrailEl = document.getElementById("relatedTrail");
+      let rabbitHoleTrail = [];
+
+      function findRelatedByVector(targetVec, excludeTitle, count = 5) {
+        // Cosine similarity against all chunks, deduplicate by title
+        const scores = [];
+        for (const v of allVectors) {
+          let s = 0;
+          for (let i = 0; i < targetVec.length; i++) s += targetVec[i] * v.vector[i];
+          scores.push({ chunkId: v.chunkId, score: s });
+        }
+        scores.sort((a, b) => b.score - a.score);
+        // Fetch chunk details and deduplicate
+        const topIds = scores.slice(0, count * 4).map(r => r.chunkId);
+        const ph = topIds.map(() => "?").join(",");
+        const chunks = queryDb(`SELECT id, url, title, content FROM chunks WHERE id IN (${ph})`, topIds);
+        const scoreMap = new Map(scores.map(r => [r.chunkId, r.score]));
+        const sorted = chunks.map(c => ({ ...c, score: scoreMap.get(c.id) || 0 })).sort((a, b) => b.score - a.score);
+        // Deduplicate, excluding the source post
+        const seen = new Set();
+        if (excludeTitle) seen.add(excludeTitle);
+        for (const t of rabbitHoleTrail) seen.add(t);
+        const out = [];
+        for (const r of sorted) {
+          if (!seen.has(r.title)) {
+            seen.add(r.title);
+            out.push(r);
+            if (out.length >= count) break;
+          }
+        }
+        return out;
+      }
+
+      function showRelated(chunkId, title) {
+        const vec = allVectors.find(v => v.chunkId === chunkId);
+        if (!vec) return;
+        rabbitHoleTrail.push(title);
+        const related = findRelatedByVector(vec.vector, null, 5);
+        relatedSectionEl.style.display = "block";
+        relatedHeaderEl.textContent = rabbitHoleTrail.length === 1
+          ? `If you liked "${snippet(title, 50)}"...`
+          : `Rabbit hole — ${rabbitHoleTrail.length} posts deep`;
+        // Render trail
+        relatedTrailEl.innerHTML = rabbitHoleTrail.map((t, i) =>
+          `<span class="trail-crumb" data-idx="${i}">${esc(snippet(t, 30))}</span>${i < rabbitHoleTrail.length - 1 ? '<span class="trail-sep">→</span>' : ''}`
+        ).join("");
+        // Render related cards
+        relatedResultsEl.innerHTML = related.map(r => `
+          <div class="related-card" data-id="${r.id}">
+            <div class="related-card-body">
+              <div class="related-card-title">${esc(r.title)}</div>
+              <div class="related-card-snippet">${esc(snippet(r.content, 120))}</div>
+            </div>
+            <a href="${esc(r.url)}" class="related-card-link" target="_blank" rel="noopener" onclick="event.stopPropagation()">Read →</a>
+          </div>
+        `).join("");
+        relatedSectionEl.scrollIntoView({ behavior: "smooth", block: "start" });
+      }
+
+      // Click handlers for related cards and trail
+      document.getElementById("relatedResults").addEventListener("click", (e) => {
+        const card = e.target.closest(".related-card");
+        if (card && !e.target.closest(".related-card-link")) {
+          const id = parseInt(card.dataset.id);
+          const title = card.querySelector(".related-card-title").textContent;
+          showRelated(id, title);
+        }
+      });
+      document.getElementById("relatedTrail").addEventListener("click", (e) => {
+        const crumb = e.target.closest(".trail-crumb");
+        if (crumb) {
+          const idx = parseInt(crumb.dataset.idx);
+          rabbitHoleTrail = rabbitHoleTrail.slice(0, idx);
+          const title = rabbitHoleTrail.length > 0 ? rabbitHoleTrail[rabbitHoleTrail.length - 1] : null;
+          if (!title) return;
+          const chunk = queryDb("SELECT id FROM chunks WHERE title = ? LIMIT 1", [title]);
+          if (chunk.length) showRelated(chunk[0].id, title);
+        }
+      });
+
       function queryDb(sql, params = []) {
         const stmt = db.prepare(sql);
         if (params.length) stmt.bind(params);
@@ -641,12 +800,30 @@
           return;
         }
         resultsEl.innerHTML = items.map(r => `
-          <a href="${esc(r.url)}" class="result" target="_blank" rel="noopener">
+          <div class="result" data-id="${r.id}">
             <div class="result-title">${esc(r.title)}</div>
             <div class="result-snippet">${esc(snippet(r.content))}</div>
-          </a>
+            <div style="margin-top:6px;display:flex;gap:12px;align-items:center">
+              <a href="${esc(r.url)}" target="_blank" rel="noopener" style="font-size:0.7rem;color:#999;text-decoration:none" onclick="event.stopPropagation()">Read on Substack →</a>
+              <span style="font-size:0.68rem;color:#ccc">Click for related posts</span>
+            </div>
+          </div>
         `).join("");
+        // Reset rabbit hole on new search
+        rabbitHoleTrail = [];
+        relatedSectionEl.style.display = "none";
       }
+
+      // Click search results to show related posts
+      resultsEl.addEventListener("click", (e) => {
+        const card = e.target.closest(".result");
+        if (card && !e.target.closest("a")) {
+          const id = parseInt(card.dataset.id);
+          const title = card.querySelector(".result-title").textContent;
+          rabbitHoleTrail = [];
+          showRelated(id, title);
+        }
+      });
 
       function lexicalSearch(q) {
         const words = q.split(/\s+/).filter(w => w.length > 2);
